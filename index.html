@@ -1,0 +1,2106 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MINIMAL | فروشگاه مینیمال</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* سیستم طراحی مینیمال */
+        :root {
+            --color-bg: #fafafa;
+            --color-text: #333;
+            --color-text-light: #777;
+            --color-border: #e0e0e0;
+            --color-primary: #1a1a1a;
+            --color-accent: #4a4a4a;
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --radius: 4px;
+            --transition: 0.2s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.5;
+        }
+
+        /* هدر مینیمال */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--color-bg);
+            border-bottom: 0px solid var(--color-border);
+            padding: var(--space-md);
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: 500;
+            letter-spacing: -0.5px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: var(--space-md);
+            align-items: center;
+        }
+
+        .search-btn,
+        .cart-btn {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--color-accent);
+            color: white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-toggle {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .nav-toggle span {
+            display: block;
+            width: 100%;
+            height: 2px;
+            background: var(--color-primary);
+            transition: var(--transition);
+        }
+
+        /* منوی موبایل تمام صفحه */
+        .mobile-nav {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background: var(--color-bg);
+            z-index: 90;
+            padding: var(--space-xl);
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .mobile-nav.active {
+            transform: translateX(0);
+        }
+
+        .mobile-nav a {
+            padding: var(--space-md) 0;
+            border-bottom: 1px solid var(--color-border);
+            color: var(--color-text);
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        .category-links {
+            display: flex;
+            flex-direction: column;
+            margin-top: var(--space-md);
+        }
+
+        /* جستجوی مینیمال */
+        .search-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--color-bg);
+            z-index: 95;
+            padding: var(--space-xl);
+            display: none;
+            flex-direction: column;
+        }
+
+        .search-overlay.active {
+            display: flex;
+        }
+
+        .search-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: var(--space-xl);
+        }
+
+        .search-input {
+            flex: 1;
+            padding: var(--space-md);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            font-size: 16px;
+        }
+
+        .close-search {
+            margin-right: var(--space-md);
+            cursor: pointer;
+        }
+
+        .search-results {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* سبد خرید */
+        .cart-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--color-bg);
+            z-index: 85;
+            padding: var(--space-xl);
+            display: none;
+            flex-direction: column;
+        }
+
+        .cart-overlay.active {
+            display: flex;
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-xl);
+            border-bottom: 1px solid var(--color-border);
+            padding-bottom: var(--space-md);
+        }
+
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .cart-item {
+            display: flex;
+            gap: var(--space-md);
+            padding: var(--space-md) 0;
+            border-bottom: 1px solid var(--color-border);
+            cursor: pointer;
+        }
+
+        .cart-item-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: var(--radius);
+        }
+
+        .cart-item-details {
+            flex: 1;
+        }
+
+        .cart-item-title {
+            font-size: 14px;
+            margin-bottom: var(--space-xs);
+        }
+
+        .cart-item-price {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: var(--space-sm);
+        }
+
+        .cart-item-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .quantity-btn {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            cursor: pointer;
+        }
+
+        .cart-footer {
+            border-top: 1px solid var(--color-border);
+            padding-top: var(--space-md);
+        }
+
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: var(--space-md);
+            font-weight: 500;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            padding: var(--space-md);
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+        }
+
+        /* صفحه محصول */
+        .product-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--color-bg);
+            z-index: 80;
+            padding: var(--space-xl);
+            display: none;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .product-overlay.active {
+            display: flex;
+        }
+
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-xl);
+        }
+
+        .product-gallery {
+            margin-bottom: var(--space-xl);
+        }
+
+        .product-main-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: var(--radius);
+            margin-bottom: var(--space-md);
+        }
+
+        .product-thumbnails {
+            display: flex;
+            gap: var(--space-sm);
+            overflow-x: auto;
+        }
+
+        .product-thumbnail {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: var(--radius);
+            cursor: pointer;
+        }
+
+        .product-title {
+            font-size: 20px;
+            margin-bottom: var(--space-sm);
+        }
+
+        .product-price {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: var(--space-md);
+        }
+
+        .product-description {
+            margin-bottom: var(--space-xl);
+            line-height: 1.6;
+        }
+
+        .product-specs {
+            margin-bottom: var(--space-xl);
+        }
+
+        .spec-item {
+            display: flex;
+            margin-bottom: var(--space-sm);
+        }
+
+        .spec-title {
+            font-weight: 500;
+            min-width: 100px;
+        }
+
+        .add-to-cart-btn {
+            width: 100%;
+            padding: var(--space-md);
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            margin-top: var(--space-md);
+        }
+
+        /* محتوای اصلی */
+        .main {
+            margin-top: 60px;
+            padding: var(--space-md);
+        }
+
+        .section {
+            margin-bottom: var(--space-xl);
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: var(--space-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-link {
+            font-size: 12px;
+            color: var(--color-text-light);
+            text-decoration: none;
+        }
+
+        /* اسکرول افقی محصولات */
+        .horizontal-scroll {
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: var(--space-md);
+            margin-bottom: var(--space-md);
+        }
+
+        .horizontal-scroll::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .horizontal-scroll::-webkit-scrollbar-track {
+            background: var(--color-border);
+            border-radius: 3px;
+        }
+
+        .horizontal-scroll::-webkit-scrollbar-thumb {
+            background: var(--color-primary);
+            border-radius: 3px;
+        }
+
+        .scroll-container {
+            display: inline-flex;
+            gap: var(--space-md);
+            padding: 0 var(--space-md);
+        }
+
+        /* کارت محصول */
+        .product-card {
+            scroll-snap-align: start;
+            min-width: 200px;
+            width: 200px;
+            background: white;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: var(--space-md);
+        }
+
+        .product-name {
+            font-size: 13px;
+            margin-bottom: var(--space-xs);
+        }
+
+        .product-price {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* بخش دسته‌بندی‌ها */
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-md);
+        }
+
+        .category-card {
+            background: white;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .category-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .category-image {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+
+        .category-info {
+            padding: var(--space-md);
+        }
+
+        .category-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: var(--space-xs);
+        }
+
+        .category-count {
+            font-size: 12px;
+            color: var(--color-text-light);
+        }
+
+        /* فوتر مینیمال */
+        .footer {
+            padding: var(--space-xl) var(--space-md);
+            text-align: center;
+            color: var(--color-text-light);
+            font-size: 12px;
+            border-top: 1px solid var(--color-border);
+        }
+
+        /* واکنشگرایی */
+        @media (min-width: 768px) {
+            .categories {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .product-card {
+                min-width: 240px;
+                width: 240px;
+            }
+
+            .main {
+                max-width: 1200px;
+                margin: 60px auto 0;
+            }
+        }
+
+        /* نتایج جستجو - هماهنگ با سبک اصلی */
+        .search-result-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-md) 0;
+            border-bottom: 1px solid var(--color-border);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .search-result-item:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .search-result-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: var(--radius);
+            border: 1px solid var(--color-border);
+        }
+
+        .search-result-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .search-result-title {
+            font-size: 14px;
+            margin-bottom: var(--space-xs);
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .search-result-price {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--color-primary);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: var(--space-xl);
+            color: var(--color-text-light);
+            font-size: 14px;
+        }
+
+        /* واکنشگرایی برای موبایل */
+        @media (max-width: 767px) {
+            .search-result-item {
+                gap: var(--space-sm);
+                padding: var(--space-sm) 0;
+            }
+
+            .search-result-image {
+                width: 60px;
+                height: 60px;
+            }
+
+            .search-result-title {
+                font-size: 13px;
+            }
+
+            .search-result-price {
+                font-size: 12px;
+            }
+        }
+
+        /* استایل‌های تخفیف */
+        .discount-badge {
+            position: absolute;
+            top: var(--space-sm);
+            left: var(--space-sm);
+            background-color: #e53935;
+            color: white;
+            font-size: 11px;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 10px;
+            z-index: 1;
+        }
+
+        .price-container {
+            display: flex;
+            gap: var(--space-sm);
+            align-items: center;
+            margin-top: var(--space-xs);
+        }
+
+        .original-price {
+            font-size: 12px;
+            color: var(--color-text-light);
+            text-decoration: line-through;
+        }
+
+        .discounted-price {
+            font-size: 14px;
+            font-weight: 500;
+            color: #e53935;
+        }
+
+        .product-card {
+            position: relative;
+        }
+
+        @media (max-width: 767px) {
+            .discount-badge {
+                font-size: 10px;
+                padding: 1px 6px;
+            }
+
+            .original-price {
+                font-size: 10px;
+            }
+
+            .discounted-price {
+                font-size: 12px;
+            }
+        }
+
+        /* استایل صفحه تکمیل سفارش */
+        .checkout-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            display: none;
+            padding: var(--space-xl);
+            overflow-y: auto;
+        }
+
+        .checkout-overlay.active {
+            display: block;
+        }
+
+        .checkout-container {
+            background: var(--color-bg);
+            border-radius: var(--radius);
+            max-width: 800px;
+            margin: 0 auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .checkout-header {
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-checkout {
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .checkout-body {
+            padding: var(--space-md);
+        }
+
+        .checkout-section {
+            margin-bottom: var(--space-xl);
+        }
+
+        .checkout-section h3 {
+            margin-bottom: var(--space-md);
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: var(--space-md);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--space-xs);
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: var(--space-sm);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            font-family: inherit;
+        }
+
+        .order-item {
+            display: flex;
+            margin-bottom: var(--space-md);
+            padding-bottom: var(--space-md);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .order-item-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: var(--radius);
+            margin-left: var(--space-md);
+        }
+
+        .order-item-details {
+            flex: 1;
+        }
+
+        .order-item-title {
+            font-size: 14px;
+            margin-bottom: var(--space-xs);
+        }
+
+        .order-item-options {
+            margin-top: var(--space-sm);
+        }
+
+        .option-group {
+            margin-bottom: var(--space-sm);
+        }
+
+        .option-group label {
+            display: block;
+            margin-bottom: var(--space-xs);
+            font-size: 13px;
+            color: var(--color-text-light);
+        }
+
+        .option-select {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-xs);
+        }
+
+        .option-select span {
+            display: inline-block;
+            padding: var(--space-xs) var(--space-sm);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .option-select span.selected {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .payment-methods {
+            display: flex;
+            gap: var(--space-md);
+        }
+
+        .payment-method {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .payment-method input {
+            margin-left: var(--space-xs);
+        }
+
+        .checkout-footer {
+            padding: var(--space-md);
+            border-top: 1px solid var(--color-border);
+            text-align: center;
+        }
+
+        .checkout-btn {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: var(--space-md) var(--space-xl);
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        /* واکنشگرایی */
+        @media (max-width: 768px) {
+            .checkout-overlay {
+                padding: var(--space-md);
+            }
+
+            .payment-methods {
+                flex-direction: column;
+                gap: var(--space-sm);
+            }
+        }
+
+        /* استایل صفحه دسته‌بندی */
+        .category-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--color-bg);
+            z-index: 100;
+            padding: var(--space-xl);
+            display: none;
+            overflow-y: auto;
+        }
+
+        .category-overlay.active {
+            display: block;
+        }
+
+        .category-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-xl);
+            padding-bottom: var(--space-md);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .close-category {
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .category-products {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: var(--space-md);
+        }
+
+        @media (max-width: 768px) {
+            .category-overlay {
+                padding: var(--space-md);
+            }
+
+            .category-products {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- هدر مینیمال -->
+    <header class="header">
+        <div class="nav-toggle" id="navToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+        <div class="logo">MINIMAL</div>
+
+        <div class="header-actions">
+            <div class="search-btn" id="searchBtn">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="cart-btn" id="cartBtn">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count" id="cartCount">0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- منوی موبایل تمام صفحه -->
+    <nav class="mobile-nav" id="mobileNav">
+        <a href="#" data-section="home">خانه</a>
+        <a href="#" data-section="about">درباره ما</a>
+        <a href="#" data-section="search">جستجو</a>
+        <div class="category-links">
+            <a href="#" data-category="cameras">دوربین‌ها</a>
+            <a href="#" data-category="watches">ساعت‌ها</a>
+            <a href="#" data-category="headphones">هدفون‌ها</a>
+            <a href="#" data-category="laptops">لپ‌تاپ‌ها</a>
+            <a href="#" data-category="shoes">کفش‌ها</a>
+            <a href="#" data-category="bags">کیف‌ها</a>
+            <a href="#" data-category="glasses">عینک‌ها</a>
+            <a href="#" data-category="phones">موبایل‌ها</a>
+        </div>
+    </nav>
+
+    <!-- جستجوی مینیمال -->
+    <div class="search-overlay" id="searchOverlay">
+        <div class="search-header">
+            <div class="close-search" id="closeSearch">
+                <i class="fas fa-times"></i>
+            </div>
+            <input type="text" class="search-input" placeholder="جستجوی محصولات..." id="searchInput">
+        </div>
+        <div class="search-results" id="searchResults"></div>
+    </div>
+
+    <!-- سبد خرید -->
+    <div class="cart-overlay" id="cartOverlay">
+        <div class="cart-header">
+            <h2>سبد خرید</h2>
+            <div class="close-cart" id="closeCart">
+                <i class="fas fa-times"></i>
+            </div>
+        </div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>جمع کل:</span>
+                <span id="cartTotal">۰ تومان</span>
+            </div>
+            <button class="checkout-btn">تکمیل سفارش</button>
+        </div>
+    </div>
+
+    <!-- صفحه محصول -->
+    <div class="product-overlay" id="productOverlay">
+        <div class="product-header">
+            <h2 id="productDetailTitle">محصول</h2>
+            <div class="close-product" id="closeProduct">
+                <i class="fas fa-times"></i>
+            </div>
+        </div>
+        <div class="product-gallery">
+            <img id="productMainImage" src="" alt="" class="product-main-image">
+            <div class="product-thumbnails" id="productThumbnails"></div>
+        </div>
+        <h1 id="productTitle" class="product-title">نام محصول</h1>
+        <div id="productPrice" class="product-price">۰ تومان</div>
+        <div id="productDescription" class="product-description"></div>
+        <div class="product-specs">
+            <h3>مشخصات فنی</h3>
+            <div id="productSpecs"></div>
+        </div>
+        <button class="add-to-cart-btn" id="addToCartBtn">افزودن به سبد خرید</button>
+    </div>
+
+    <!-- محتوای اصلی -->
+    <main class="main" id="mainContent">
+        <!-- بخش دسته‌بندی‌ها -->
+        <section class="section" id="categoriesSection">
+            <h2 class="section-title">
+                دسته‌بندی‌ها
+                <a href="#" class="section-link">مشاهده همه</a>
+            </h2>
+            <div class="categories" id="categoriesContainer"></div>
+        </section><!-- محصولات پرفروش با اسکرول افقی -->
+        <section class="section" id="featuredSection">
+            <h2 class="section-title">
+                پرفروش‌ترین‌ها
+                <a href="#" class="section-link">مشاهده همه</a>
+            </h2>
+            <div class="horizontal-scroll">
+                <div class="scroll-container" id="featuredProducts"></div>
+            </div>
+        </section>
+
+        <!-- محصولات جدید با اسکرول افقی -->
+        <section class="section" id="newSection">
+            <h2 class="section-title">
+                جدیدترین محصولات
+                <a href="#" class="section-link">مشاهده همه</a>
+            </h2>
+            <div class="horizontal-scroll">
+                <div class="scroll-container" id="newProducts"></div>
+            </div>
+        </section>
+        <!-- بخش تخفیف‌های ویژه -->
+        <section class="section" id="discountsSection">
+            <h2 class="section-title">
+                تخفیف‌های ویژه
+                <a href="#" class="section-link">مشاهده همه</a>
+            </h2>
+            <div class="horizontal-scroll">
+                <div class="scroll-container" id="discountedProducts"></div>
+            </div>
+        </section>
+        <!-- دسته‌بندی‌های اضافی -->
+        <section class="section" id="moreCategories">
+            <h2 class="section-title">
+                دسته‌بندی‌های بیشتر
+                <a href="#" class="section-link">مشاهده همه</a>
+            </h2>
+            <div class="horizontal-scroll">
+                <div class="scroll-container" id="moreCategoriesContainer"></div>
+            </div>
+        </section>
+    </main>
+    <!-- صفحه تکمیل سفارش -->
+    <div class="checkout-overlay" id="checkoutOverlay">
+        <div class="checkout-container">
+            <div class="checkout-header">
+                <h2>تکمیل سفارش</h2>
+                <div class="close-checkout" id="closeCheckout">
+                    <i class="fas fa-times"></i>
+                </div>
+            </div>
+
+            <div class="checkout-body">
+                <!-- بخش اطلاعات مشتری -->
+                <div class="checkout-section">
+                    <h3>اطلاعات مشتری</h3>
+                    <div class="form-group">
+                        <label>نام کامل:</label>
+                        <input type="text" id="fullName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>شماره تماس:</label>
+                        <input type="tel" id="phoneNumber" required>
+                    </div>
+                    <div class="form-group">
+                        <label>آدرس ایمیل:</label>
+                        <input type="email" id="email" required>
+                    </div>
+                </div>
+
+                <!-- بخش آدرس -->
+                <div class="checkout-section">
+                    <h3>آدرس ارسال</h3>
+                    <div class="form-group">
+                        <label>استان:</label>
+                        <select id="province" required>
+                            <option value="">انتخاب کنید</option>
+                            <option value="tehran">تهران</option>
+                            <!-- سایر استان‌ها -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>شهر:</label>
+                        <select id="city" required>
+                            <option value="">ابتدا استان را انتخاب کنید</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>آدرس دقیق:</label>
+                        <textarea id="address" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>کد پستی:</label>
+                        <input type="text" id="postalCode" required>
+                    </div>
+                </div>
+
+                <!-- بخش مشخصات محصولات -->
+                <div class="checkout-section">
+                    <h3>مشخصات سفارش</h3>
+                    <div id="orderItems">
+                        <!-- محصولات به صورت داینامیک اضافه می‌شوند -->
+                    </div>
+                </div>
+
+                <!-- بخش پرداخت -->
+                <div class="checkout-section">
+                    <h3>روش پرداخت</h3>
+                    <div class="payment-methods">
+                        <label class="payment-method">
+                            <input type="radio" name="payment" value="online" checked>
+                            <span>پرداخت اینترنتی</span>
+                        </label>
+                        <label class="payment-method">
+                            <input type="radio" name="payment" value="cash">
+                            <span>پرداخت در محل</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="checkout-footer">
+                <button class="checkout-btn" id="confirmCheckout">پرداخت و تکمیل سفارش</button>
+            </div>
+        </div>
+    </div>
+    <!-- صفحه محصولات دسته‌بندی -->
+    <div class="category-overlay" id="categoryOverlay">
+        <div class="category-container">
+            <div class="category-header">
+                <h2 id="categoryTitle">دسته‌بندی</h2>
+                <div class="close-category" id="closeCategory">
+                    <i class="fas fa-times"></i>
+                </div>
+            </div>
+
+            <div class="category-products" id="categoryProducts">
+                <!-- محصولات به صورت داینامیک نمایش داده می‌شوند -->
+            </div>
+        </div>
+    </div>
+    <!-- فوتر مینیمال -->
+    <footer class="footer">
+        <p>© ۲۰۲۳ MINIMAL. تمام حقوق محفوظ است.</p>
+    </footer>
+
+
+</body>
+<script>
+    // داده‌های محصولات
+    const products = {
+
+        1: {
+            id: 1,
+            title: "کفش ورزشی حرفه‌ای",
+            price: 1299000,
+            image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+            description: "کفش ورزشی حرفه‌ای با طراحی مدرن و کفی ارگونومیک برای دویدن و تمرینات ورزشی. این کفش با استفاده از مواد باکیفیت و تکنولوژی روز دنیا ساخته شده است.",
+            specs: [
+                { name: "جنس رویه", value: "پارچه مشبک و چرم مصنوعی" },
+                { name: "کفی", value: "ارگونومیک با قابلیت جذب ضربه" },
+                { name: "سایز", value: "۳۶ تا ۴۵" },
+                { name: "رنگ‌بندی", value: "مشکی، سفید، آبی" }
+            ],
+            images: [
+                "https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1600269452121-4f2416e55c28?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1605348532760-6753d2c43329?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+            ],
+            category: "shoes"
+        },
+        2: {
+            id: 2,
+            title: "ساعت مچی مدرن",
+            price: 2499000,
+            image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+            description: "ساعت مچی مدرن با طراحی مینیمال و صفحه نمایش دیجیتال. مقاوم در برابر آب تا عمق ۵۰ متر و با باتری با عمر طولانی.",
+            specs: [
+                { name: "جنس بند", value: "استیل ضدزنگ" },
+                { name: "مقاومت در آب", value: "تا ۵۰ متر" },
+                { name: "باتری", value: "CR2025 (عمر ۲ سال)" },
+                { name: "ابعاد", value: "۴۰mm قطر، ۱۰mm ضخامت" }
+            ],
+            images: [
+                "https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1539874754764-5a96559165b0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1547996160-81dfa63595aa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+            ],
+            category: "watches"
+        },
+        3: {
+            id: 3,
+            title: "هدفون بی‌سیم",
+            price: 1899000,
+            image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+            description: "هدفون بی‌سیم با کیفیت صدای استثنایی و قابلیت حذف نویز فعال. باتری با عمر ۳۰ ساعت و قابلیت شارژ سریع.",
+            specs: [
+                { name: "نوع", value: "بی‌سیم با بلوتوث ۵.۰" },
+                { name: "حذف نویز", value: "فعال (ANC)" },
+                { name: "عمر باتری", value: "تا ۳۰ ساعت" },
+                { name: "وزن", value: "۲۵۰ گرم" }
+            ],
+            images: [
+                "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+            ],
+            category: "headphones"
+        },
+        4: {
+            id: 4,
+            title: "ساعت هوشمند",
+            price: 3299000,
+            image: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80", description: "ساعت هوشمند با نمایشگر AMOLED و قابلیت‌های سلامت و تناسب اندام. مقاوم در برابر آب و گرد و غبار.",
+            specs: [
+                { name: "نمایشگر", value: "AMOLED 1.4 اینچ" },
+                { name: "باتری", value: "تا ۷ روز عمر باتری" },
+                { name: "سنسورها", value: "ضربان قلب، SpO2، شتاب‌سنج" },
+                { name: "سیستم عامل", value: "سیستم اختصاصی" }
+            ],
+            images: [
+                "https://images.unsplash.com/photo-1546868871-7041f2a55e12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1558126319-c9feecbf57ee?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1551969014-7d2c4cddf0b6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+            ],
+            category: "watches"
+        },
+        5: {
+            id: 5,
+            title: "دوربین حرفه‌ای",
+            price: 12999000,
+            image: "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+            description: "دوربین حرفه‌ای DSLR با سنسور فول فریم و قابلیت فیلمبرداری 4K. همراه با لنز کیت 24-70mm.",
+            specs: [
+                { name: "سنسور", value: "فول فریم ۳۵mm" },
+                { name: "رزولوشن", value: "۳۰ مگاپیکسل" },
+                { name: "فیلمبرداری", value: "4K با ۳۰ فریم بر ثانیه" },
+                { name: "لنز", value: "24-70mm f/4" }
+            ],
+            images: [
+                "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1564466809058-bf4114d55352?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+            ],
+            category: "cameras"
+        },
+        6: {
+            id: 6,
+            title: "عینک آفتابی",
+            price: 1499000,
+            image: "https://images.unsplash.com/photo-1525904097878-94fb15835963?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+            description: "عینک آفتابی با عدسی پلاریزه و فریم فلزی سبک وزن. محافظت ۱۰۰% در برابر UV400.",
+            specs: [
+                { name: "جنس فریم", value: "فلز سبک وزن" },
+                { name: "عدسی", value: "پلاریزه UV400" },
+                { name: "رنگ", value: "مشکی با عدسی خاکستری" },
+                { name: "ابعاد", value: "۵۵-۱۸-۱۴۵ میلیمتر" }
+            ],
+            images: [
+                "https://images.unsplash.com/photo-1525904097878-94fb15835963?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1511499767150-a48a237f0083?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1556306535-0f09a537f0a3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+            ],
+            category: "glasses"
+        },
+        7: {
+            id: 7,
+            title: "کیبورد مکانیکی",
+            price: 2899000,
+            image: "https://images.unsplash.com/photo-1543512214-318c7553f230?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+            description: "کیبورد مکانیکی گیمینگ با سوئیچ‌های Cherry MX Red و نورپردازی RGB قابل تنظیم.",
+            specs: [
+                { name: "سوئیچ", value: "Cherry MX Red" },
+                { name: "نورپردازی", value: "RGB با نرم‌افزار اختصاصی" },
+                { name: "اتصال", value: "USB-C با کابل جداشدنی" },
+                { name: "فریم", value: "آلومینیومی" }
+            ],
+            images: ["https://images.unsplash.com/photo-1543512214-318c7553f230?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1587829741301-dc798b83add3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1587614382346-4ec70e388b28?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+            ],
+            category: "accessories"
+        },
+        8: {
+            id: 8,
+            title: "لپ‌تاپ فوق‌نازک",
+            price: 24999000,
+            image: "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+            description: "لپ‌تاپ فوق‌نازک با پردازنده Core i7 نسل ۱۲، ۱۶ گیگابایت رم و SSD 1 ترابایت.",
+            specs: [
+                { name: "پردازنده", value: "Intel Core i7-1260P" },
+                { name: "رم", value: "۱۶GB LPDDR5" },
+                { name: "ذخیره‌سازی", value: "1TB SSD NVMe" },
+                { name: "صفحه نمایش", value: "۱۴ اینچ 2K IPS" }
+            ],
+            images: [
+                "https://images.unsplash.com/photo-1608231387042-66d1773070a5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1629131726695-4a7f8f5b7c4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+
+            ],
+            category: "laptops"
+        },
+        9: {
+            id: 9,
+            title: "ماوس بی‌سیم",
+            price: 899000,
+            image: "https://images.unsplash.com/photo-1527814050087-3793815479db?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+            description: "ماوس بی‌سیم ارگونومیک با سنسور نوری دقت بالا و باتری با عمر طولانی.",
+            specs: [
+                { name: "سنسور", value: "نوری با دقت 16000 DPI" },
+                { name: "اتصال", value: "بلوتوث و USB دنگل" },
+                { name: "باتری", value: "تا ۶۰ روز با یک بار شارژ" },
+                { name: "دکمه‌ها", value: "۶ دکمه قابل برنامه‌ریزی" }
+            ],
+            images: [
+                "https://images.unsplash.com/photo-1527814050087-3793815479db?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1527814050087-3793815479db?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1592155931584-901ac15763e3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+            ],
+            category: "accessories"
+        },
+        10: {
+            id: 10,
+            title: "کیف چرمی",
+            price: 1999000,
+            image: "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+            description: "کیف چرمی مردانه با طراحی مدرن و جیب‌های متعدد. ساخته شده از چرم طبیعی با دوخت دستی.",
+            specs: [
+                { name: "جنس", value: "چرم طبیعی" },
+                { name: "ابعاد", value: "۳۰x۲۰x۱۰ سانتی‌متر" },
+                { name: "جیب‌ها", value: "۳ جیب اصلی + جیب کارت" },
+                { name: "رنگ", value: "قهوه‌ای تیره" }
+            ],
+            images: [
+                "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1566150902887-9679ecc155ba?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+            ],
+            category: "bags"
+        },
+        11: {
+            id: 11,
+            title: "هندزفری بی‌سیم",
+            price: 1599000,
+            discount: 0.25,
+            image: "hhh.jpg",
+            description: "توضیحات محصول",
+            specs: [/* مشخصات */],
+            images: [/* تصاویر */],
+            category: "headphones"
+        },
+        12: {
+            id: 12,
+            title: "کوله پشتی",
+            price: 2499000,
+            discount: 0.30,
+            image: "hhh.jpg",
+            description: "توضیحات محصول",
+            specs: [/* مشخصات */],
+            images: [/* تصاویر */],
+            category: "bags"
+        }
+    };
+
+    // دسته‌بندی‌ها
+    const categories = {
+        "cameras": {
+            name: "دوربین‌ها",
+            image: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+            count: 12
+        },
+        "watches": {
+            name: "ساعت‌ها",
+            image: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+            count: 18
+        },
+        "headphones": {
+            name: "هدفون‌ها",
+            image: "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+            count: 15
+        },
+        "laptops": {
+            name: "لپ‌تاپ‌ها",
+            image: "https://images.unsplash.com/photo-1608231387042-66d1773070a5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+            count: 9
+        },
+        "shoes": {
+            name: "کفش‌ها",
+            image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+            count: 22
+        },
+        "bags": {
+            name: "کیف‌ها",
+            image: "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+            count: 14
+        },
+        "glasses": {
+            name: "عینک‌ها",
+            image: "https://images.unsplash.com/photo-1525904097878-94fb15835963?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+            count: 11
+        },
+        "phones": {
+            name: "موبایل‌ها",
+            image: "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+            count: 17
+        },
+        "accessories": {
+            name: "لوازم جانبی",
+            image: "https://images.unsplash.com/photo-1543512214-318c7553f230?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+            count: 25
+        }
+    };
+
+    // مدیریت منوی موبایل
+    const navToggle = document.getElementById('navToggle');
+    const mobileNav = document.getElementById('mobileNav');
+
+    navToggle.addEventListener('click', () => {
+        mobileNav.classList.toggle('active');
+        document.body.style.overflow = mobileNav.classList.contains('active') ? 'hidden' : '';
+    });
+
+    // بستن منو هنگام کلیک روی لینک‌ها
+    // در بخش مدیریت منوی موبایل، این تغییر را اعمال کنید:
+    document.querySelectorAll('.mobile-nav a[data-category]').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const category = link.getAttribute('data-category');
+            showAllCategoryProducts(category);
+            mobileNav.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+    });
+    // مدیریت جستجو
+    const searchBtn = document.getElementById('searchBtn');
+    const searchOverlay = document.getElementById('searchOverlay');
+    const closeSearch = document.getElementById('closeSearch');
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+
+    searchBtn.addEventListener('click', () => {
+        searchOverlay.classList.add('active');
+        searchInput.focus();
+        document.body.style.overflow = 'hidden';
+    });
+
+    closeSearch.addEventListener('click', () => {
+        searchOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+    });
+
+    searchInput.addEventListener('input', () => {
+        const query = searchInput.value.trim().toLowerCase(); if (query.length < 2) {
+            searchResults.innerHTML = '';
+            return;
+        }
+
+        const results = Object.values(products).filter(product =>
+            product.title.toLowerCase().includes(query) ||
+            product.description.toLowerCase().includes(query)
+        );
+
+        displaySearchResults(results);
+    });
+
+    function displaySearchResults(results) {
+        searchResults.innerHTML = '';
+
+        if (results.length === 0) {
+            searchResults.innerHTML = `
+            <div class="no-results">
+                <i class="fas fa-search" style="font-size: 24px; margin-bottom: var(--space-sm);"></i>
+                <p>نتیجه‌ای برای "${searchInput.value}" یافت نشد</p>
+            </div>
+        `;
+            return;
+        }
+
+        results.forEach(product => {
+            const productElement = document.createElement('div');
+            productElement.className = 'search-result-item';
+            productElement.innerHTML = `
+            <img src="${product.image}" alt="${product.title}" class="search-result-image">
+            <div class="search-result-info">
+                <h3 class="search-result-title">${product.title}</h3>
+                <p class="search-result-price">${formatPrice(product.price)}</p>
+            </div>
+            <i class="fas fa-chevron-left" style="color: var(--color-text-light); font-size: 12px;"></i>
+        `;
+            productElement.addEventListener('click', () => {
+                showProduct(product.id);
+                searchOverlay.classList.remove('active');
+                document.body.style.overflow = 'hidden';
+            });
+            searchResults.appendChild(productElement);
+        });
+    }
+
+    // مدیریت سبد خرید
+    const cartBtn = document.getElementById('cartBtn');
+    const cartOverlay = document.getElementById('cartOverlay');
+    const closeCart = document.getElementById('closeCart');
+    const cartItems = document.getElementById('cartItems');
+    const cartCount = document.getElementById('cartCount');
+    const cartTotal = document.getElementById('cartTotal');
+
+    let cart = [];
+
+    cartBtn.addEventListener('click', () => {
+        cartOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        updateCartDisplay();
+    });
+
+    closeCart.addEventListener('click', () => {
+        cartOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+    });
+
+    // نمایش محصول از سبد خرید
+    cartItems.addEventListener('click', (e) => {
+        const cartItem = e.target.closest('.cart-item');
+        if (!cartItem) return;
+
+        const productId = parseInt(cartItem.dataset.id);
+        showProduct(productId);
+        cartOverlay.classList.remove('active');
+    });
+
+    // مدیریت صفحه محصول
+    const productOverlay = document.getElementById('productOverlay');
+    const closeProduct = document.getElementById('closeProduct');
+    const productDetailTitle = document.getElementById('productDetailTitle');
+    const productTitle = document.getElementById('productTitle');
+    const productPrice = document.getElementById('productPrice');
+    const productDescription = document.getElementById('productDescription');
+    const productSpecs = document.getElementById('productSpecs');
+    const productMainImage = document.getElementById('productMainImage');
+    const productThumbnails = document.getElementById('productThumbnails');
+    const addToCartBtn = document.getElementById('addToCartBtn');
+
+    let currentProductId = null;
+
+    closeProduct.addEventListener('click', () => {
+        productOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+    });
+
+    // نمایش محصول
+    function showProduct(productId) {
+        const product = products[productId];
+        if (!product) return;
+
+        currentProductId = productId;
+        productDetailTitle.textContent = product.title;
+        productTitle.textContent = product.title;
+        productPrice.textContent = formatPrice(product.price);
+        productDescription.textContent = product.description;
+        productMainImage.src = product.image;
+
+        // نمایش مشخصات فنی
+        productSpecs.innerHTML = '';
+        product.specs.forEach(spec => {
+            const specItem = document.createElement('div');
+            specItem.className = 'spec-item';
+            specItem.innerHTML = `
+            <div class="spec-title">${spec.name}:</div>
+            <div class="spec-value">${spec.value}</div>
+        `;
+            productSpecs.appendChild(specItem);
+        });
+
+        // نمایش تصاویر محصول
+        productThumbnails.innerHTML = '';
+        product.images.forEach(image => {
+            const thumbnail = document.createElement('img');
+            thumbnail.src = image;
+            thumbnail.className = 'product-thumbnail';
+            thumbnail.addEventListener('click', () => {
+                productMainImage.src = image;
+            });
+            productThumbnails.appendChild(thumbnail);
+        });
+
+        productOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    // افزودن به سبد خرید
+    addToCartBtn.addEventListener('click', () => {
+        if (!currentProductId) return;
+
+        const product = products[currentProductId];
+        const existingItem = cart.find(item => item.id === product.id);
+
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            cart.push({
+                id: product.id,
+                title: product.title,
+                price: product.price,
+                image: product.image,
+                quantity: 1
+            });
+        }
+
+        updateCartDisplay();
+        productOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+    });
+
+    // به‌روزرسانی نمایش سبد خرید
+    function updateCartDisplay() {
+        cartItems.innerHTML = '';
+
+        if (cart.length === 0) {
+            cartItems.innerHTML = '<div class="empty-cart">سبد خرید شما خالی است</div>';
+            cartCount.style.display = 'none';
+            cartTotal.textContent = '۰ تومان';
+            return;
+        }
+
+        let total = 0;
+
+        cart.forEach(item => {
+            total += item.price * item.quantity;
+
+            const cartItem = document.createElement('div');
+            cartItem.className = 'cart-item';
+            cartItem.dataset.id = item.id;
+            cartItem.innerHTML = `
+            <img src="${item.image}" alt="${item.title}" class="cart-item-image">
+            <div class="cart-item-details">
+                <h3 class="cart-item-title">${item.title}</h3>
+                <p class="cart-item-price">${formatPrice(item.price)}</p>
+                <div class="cart-item-actions">
+                    <div class="quantity-btn minus" data-id="${item.id}">-</div>
+                    <span>${item.quantity}</span>
+                    <div class="quantity-btn plus" data-id="${item.id}">+</div>
+                </div>
+            </div>
+        `;
+            cartItems.appendChild(cartItem);
+        });
+
+        // مدیریت دکمه‌های کم و زیاد
+        document.querySelectorAll('.quantity-btn.minus').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.getAttribute('data-id'));
+                const item = cart.find(item => item.id === id);
+
+                if (item.quantity > 1) {
+                    item.quantity -= 1;
+                } else {
+                    cart = cart.filter(item => item.id !== id);
+                }
+
+                updateCartDisplay();
+            });
+        });
+
+        document.querySelectorAll('.quantity-btn.plus').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.getAttribute('data-id'));
+                const item = cart.find(item => item.id === id);
+                item.quantity += 1;
+                updateCartDisplay();
+            });
+        });
+
+        cartCount.textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+        cartCount.style.display = 'flex';
+        cartTotal.textContent = formatPrice(total);
+    }
+
+    // نمایش محصولات دسته‌بندی
+    function showCategoryProducts(categoryId) {
+        const category = categories[categoryId];
+        if (!category) return;
+
+        const categoryProducts = Object.values(products).filter(p => p.category === categoryId);
+
+        // ایجاد یک بخش جدید برای نمایش محصولات دسته‌بندی
+        let section = document.getElementById(`category-${categoryId}`);
+
+        if (!section) {
+            section = document.createElement('section');
+            section.className = 'section';
+            section.id = category - `${categoryId}`;
+            section.innerHTML = `
+            <h2 class="section-title">
+                ${category.name}
+                <a href="#" class="section-link">مشاهده همه</a>
+            </h2>
+            <div class="horizontal-scroll"><div class="scroll-container" id="products-${categoryId}"></div>
+            </div>
+        `;
+            document.getElementById('mainContent').appendChild(section);
+        }
+
+        const productsContainer = document.getElementById(`products-${categoryId}`);
+        productsContainer.innerHTML = '';
+
+        categoryProducts.forEach(product => {
+            const productCard = document.createElement('div');
+            productCard.className = 'product-card';
+            productCard.dataset.id = product.id;
+            productCard.innerHTML = `
+            <img src="${product.image}" alt="${product.title}" class="product-image">
+            <div class="product-info">
+                <h3 class="product-name">${product.title}</h3>
+                <p class="product-price">${formatPrice(product.price)}</p>
+            </div>
+        `;
+            productCard.addEventListener('click', () => showProduct(product.id));
+            productsContainer.appendChild(productCard);
+        });
+
+        // اسکرول به بخش مورد نظر
+        section.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // اسکرول به بخش مورد نظر
+    function scrollToSection(sectionId) {
+        const section = document.getElementById(`${sectionId}Section`);
+        if (section) {
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
+    // فرمت قیمت
+    function formatPrice(price) {
+        return new Intl.NumberFormat('fa-IR').format(price) + ' تومان';
+    }
+    function showDiscountedProducts() {
+        const container = document.getElementById('discountedProducts');
+        container.innerHTML = '';
+
+        Object.values(products)
+            .filter(product => product.discount)
+            .forEach(product => {
+                const discountedPrice = product.price * (1 - product.discount);
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.innerHTML = `
+                <img src="${product.image}" alt="${product.title}" class="product-image">
+                <div class="product-info">
+                    <h3 class="product-name">${product.title}</h3>
+                    <div class="price-container">
+                        <span class="original-price">${formatPrice(product.price)}</span>
+                        <span class="discounted-price">${formatPrice(discountedPrice)}</span>
+                    </div>
+                </div>
+                <div class="discount-badge">${Math.round(product.discount * 100)}%</div>
+            `;
+                productCard.addEventListener('click', () => showProduct(product.id));
+                container.appendChild(productCard);
+            });
+    }
+    // بارگذاری اولیه صفحه
+    function initializePage() {
+        // محصولات جدید با تخفیف
+
+        // تابع نمایش محصولات تخفیف دار
+        function showDiscountedProducts() {
+            const discountedContainer = document.getElementById('discountedProducts');
+            discountedContainer.innerHTML = '';
+
+            const discountedProducts = Object.values(products).filter(product => product.discount);
+
+            discountedProducts.forEach(product => {
+                const discountedPrice = product.price * (1 - product.discount);
+
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.innerHTML = `
+            <img src="${product.image}" alt="${product.title}" class="product-image">
+            <div class="product-info">
+                <h3 class="product-name">${product.title}</h3>
+                <div class="price-container">
+                    <span class="original-price">${formatPrice(product.price)}</span>
+                    <span class="discounted-price">${formatPrice(discountedPrice)}</span>
+                </div>
+            </div>
+            <div class="discount-badge">${Math.round(product.discount * 100)}%</div>
+        `;
+                productCard.addEventListener('click', () => showProduct(product.id));
+                discountedContainer.appendChild(productCard);
+            });
+
+        }
+
+        // در تابع initializePage اضافه کنید:
+        showDiscountedProducts();
+        // نمایش دسته‌بندی‌ها
+        const categoriesContainer = document.getElementById('categoriesContainer');
+        Object.entries(categories).forEach(([id, category]) => {
+            if (id === 'cameras' || id === 'watches' || id === 'headphones' || id === 'laptops') {
+                const categoryCard = document.createElement('a');
+                categoryCard.href = '#';
+                categoryCard.className = 'category-card';
+                categoryCard.dataset.category = id;
+                categoryCard.innerHTML = `
+                <img src="${category.image}" alt="${category.name}" class="category-image">
+                <div class="category-info">
+                    <h3 class="category-title">${category.name}</h3>
+                    <p class="category-count">${category.count} محصول</p>
+                </div>
+            `;
+                categoryCard.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showCategoryProducts(id);
+                });
+                categoriesContainer.appendChild(categoryCard);
+            }
+        });
+
+        // نمایش دسته‌بندی‌های بیشتر
+        const moreCategoriesContainer = document.getElementById('moreCategoriesContainer');
+        Object.entries(categories).forEach(([id, category]) => {
+            if (id !== 'cameras' && id !== 'watches' && id !== 'headphones' && id !== 'laptops') {
+                const categoryCard = document.createElement('a');
+                categoryCard.href = '#';
+                categoryCard.className = 'category-card';
+                categoryCard.dataset.category = id;
+                categoryCard.innerHTML = `
+                <img src="${category.image}" alt="${category.name}" class="category-image">
+                <div class="category-info">
+                    <h3 class="category-title">${category.name}</h3>
+                    <p class="category-count">${category.count} محصول</p>
+                </div>
+            `;
+                categoryCard.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showCategoryProducts(id);
+                });
+                moreCategoriesContainer.appendChild(categoryCard);
+            }
+        });
+
+        // نمایش محصولات پرفروش
+        const featuredProducts = document.getElementById('featuredProducts');
+        [1, 2, 3, 4, 5].forEach(id => {
+            const product = products[id];
+            if (!product) return;
+
+            const productCard = document.createElement('div');
+            productCard.className = 'product-card';
+            productCard.dataset.id = product.id;
+            productCard.innerHTML = `
+            <img src="${product.image}" alt="${product.title}" class="product-image">
+            <div class="product-info"><h3 class="product-name">${product.title}</h3>
+                <p class="product-price">${formatPrice(product.price)}</p>
+            </div>
+        `;
+            productCard.addEventListener('click', () => showProduct(product.id));
+            featuredProducts.appendChild(productCard);
+        });
+
+        // نمایش محصولات جدید
+        const newProducts = document.getElementById('newProducts');
+        [6, 7, 8, 9, 10].forEach(id => {
+            const product = products[id];
+            if (!product) return;
+
+            const productCard = document.createElement('div');
+            productCard.className = 'product-card';
+            productCard.dataset.id = product.id;
+            productCard.innerHTML = `
+            <img src="${product.image}" alt="${product.title}" class="product-image">
+            <div class="product-info">
+                <h3 class="product-name">${product.title}</h3>
+                <p class="product-price">${formatPrice(product.price)}</p>
+            </div>
+        `;
+            productCard.addEventListener('click', () => showProduct(product.id));
+            newProducts.appendChild(productCard);
+        });
+        showDiscountedProducts();
+
+    }
+    // مدیریت صفحه تکمیل سفارش
+    const checkoutBtn = document.querySelector('.checkout-btn'); // دکمه تکمیل سفارش در سبد خرید
+    const checkoutOverlay = document.getElementById('checkoutOverlay');
+    const closeCheckout = document.getElementById('closeCheckout');
+    const confirmCheckout = document.getElementById('confirmCheckout');
+    const orderItems = document.getElementById('orderItems');
+
+    // باز کردن صفحه تکمیل سفارش
+    checkoutBtn.addEventListener('click', () => {
+        showCheckout();
+    });
+
+    // بستن صفحه تکمیل سفارش
+    closeCheckout.addEventListener('click', () => {
+        checkoutOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+    });
+
+    // نمایش صفحه تکمیل سفارش
+    function showCheckout() {
+        // پر کردن اطلاعات سفارش
+        orderItems.innerHTML = '';
+
+        cart.forEach(item => {
+            const product = products[item.id];
+            const orderItem = document.createElement('div');
+            orderItem.className = 'order-item';
+
+            // بررسی وجود سایز و رنگ در مشخصات محصول
+            const hasSize = product.specs.some(spec => spec.name.includes('سایز'));
+            const hasColor = product.specs.some(spec => spec.name.includes('رنگ'));
+
+            orderItem.innerHTML = `
+            <img src="${product.image}" alt="${product.title}" class="order-item-image">
+            <div class="order-item-details">
+                <h3 class="order-item-title">${product.title}</h3>
+                <p class="order-item-price">${formatPrice(product.price)} × ${item.quantity}</p>
+                
+                ${hasSize ? `
+                <div class="order-item-options">
+                    <div class="option-group">
+                        <label>سایز:</label>
+                        <div class="option-select" id="sizeOptions-${item.id}">
+                            ${getSizeOptions(product)}
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
+                
+                ${hasColor ? `
+                <div class="order-item-options">
+                    <div class="option-group">
+                        <label>رنگ:</label>
+                        <div class="option-select" id="colorOptions-${item.id}">
+                            ${getColorOptions(product)}
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
+            </div>
+        `;
+
+            orderItems.appendChild(orderItem);
+
+            // مدیریت انتخاب سایز و رنگ
+            if (hasSize) {
+                const sizeOptions = document.querySelectorAll(`#sizeOptions-${item.id} span`);
+                sizeOptions.forEach(option => {
+                    option.addEventListener('click', () => {
+                        sizeOptions.forEach(opt => opt.classList.remove('selected'));
+                        option.classList.add('selected');
+                        // ذخیره انتخاب کاربر
+                        item.selectedSize = option.textContent;
+                    });
+                });
+            }
+
+            if (hasColor) {
+                const colorOptions = document.querySelectorAll(`#colorOptions-${item.id} span`);
+                colorOptions.forEach(option => {
+                    option.addEventListener('click', () => {
+                        colorOptions.forEach(opt => opt.classList.remove('selected'));
+                        option.classList.add('selected');
+                        // ذخیره انتخاب کاربر
+                        item.selectedColor = option.textContent;
+                    });
+                });
+            }
+        });
+
+        checkoutOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    // تولید گزینه‌های سایز
+    function getSizeOptions(product) {
+        const sizeSpec = product.specs.find(spec => spec.name.includes('سایز'));
+        if (!sizeSpec) return '';
+
+        const sizes = sizeSpec.value.split('، '); // فرض می‌کنیم سایزها با "، " جدا شده‌اند
+        return sizes.map(size => `<span>${size.trim()}</span>`).join('');
+    }
+
+    // تولید گزینه‌های رنگ
+    function getColorOptions(product) {
+        const colorSpec = product.specs.find(spec => spec.name.includes('رنگ'));
+        if (!colorSpec) return ''; const colors = colorSpec.value.split('، '); // فرض می‌کنیم رنگ‌ها با "، " جدا شده‌اند
+        return colors.map(color => `<span>${color.trim()}</span>`).join('');
+    }
+
+    // پرداخت نهایی
+    confirmCheckout.addEventListener('click', () => {
+        if (validateCheckoutForm()) {
+            processPayment();
+        }
+    });
+
+    // اعتبارسنجی فرم
+    function validateCheckoutForm() {
+        // اعتبارسنجی اطلاعات مشتری و آدرس
+        const requiredFields = ['fullName', 'phoneNumber', 'email', 'province', 'city', 'address', 'postalCode'];
+        let isValid = true;
+
+        requiredFields.forEach(field => {
+            const element = document.getElementById(field);
+            if (!element.value.trim()) {
+                element.style.borderColor = '#e53935';
+                isValid = false;
+            } else {
+                element.style.borderColor = '';
+            }
+        });
+
+        // اعتبارسنجی انتخاب سایز و رنگ برای محصولات مربوطه
+        cart.forEach(item => {
+            const product = products[item.id];
+            const hasSize = product.specs.some(spec => spec.name.includes('سایز'));
+            const hasColor = product.specs.some(spec => spec.name.includes('رنگ'));
+
+            if (hasSize && !item.selectedSize) {
+                alert(`لطفا سایز را برای محصول ${product.title} انتخاب کنید`);
+                isValid = false;
+            }
+
+            if (hasColor && !item.selectedColor) {
+                alert(`لطفا رنگ را برای محصول ${product.title} انتخاب کنید`);
+                isValid = false;
+            }
+        });
+
+        return isValid;
+    }
+
+    // پردازش پرداخت
+    function processPayment() {
+        const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+
+        if (paymentMethod === 'online') {
+            // اتصال به درگاه پرداخت
+            connectToPaymentGateway();
+        } else {
+            // پرداخت در محل
+            completeOrder();
+        }
+    }
+
+    // اتصال به درگاه پرداخت (نمونه)
+    function connectToPaymentGateway() {
+        // در اینجا کد اتصال به درگاه پرداخت واقعی قرار می‌گیرد
+        // این یک نمونه ساده است
+
+        const orderData = {
+            customer: {
+                name: document.getElementById('fullName').value,
+                phone: document.getElementById('phoneNumber').value,
+                email: document.getElementById('email').value
+            },
+            address: {
+                province: document.getElementById('province').value,
+                city: document.getElementById('city').value,
+                details: document.getElementById('address').value,
+                postalCode: document.getElementById('postalCode').value
+            },
+            items: cart.map(item => ({
+                id: item.id,
+                title: products[item.id].title,
+                price: products[item.id].price,
+                quantity: item.quantity,
+                size: item.selectedSize || null,
+                color: item.selectedColor || null
+            })),
+            total: cart.reduce((sum, item) => sum + (products[item.id].price * item.quantity), 0),
+            paymentMethod: 'online'
+        };
+
+        // نمایش شبیه‌سازی درگاه پرداخت
+        alert('در حال اتصال به درگاه پرداخت...');
+        console.log('اطلاعات سفارش:', orderData);
+
+        // در حالت واقعی اینجا کاربر به درگاه پرداخت هدایت می‌شود
+        // بعد از پرداخت موفق:
+        setTimeout(() => {
+            completeOrder();
+        }, 2000);
+    }
+
+    // تکمیل سفارش
+    function completeOrder() {
+        alert('سفارش شما با موفقیت ثبت شد!');
+        checkoutOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+
+        // پاک کردن سبد خرید
+        cart = [];
+        updateCartDisplay();
+
+        // در حالت واقعی اینجا اطلاعات به سرور ارسال می‌شود
+    }
+    
+    // مدیریت نمایش تمام محصولات دسته‌بندی
+        document.addEventListener('DOMContentLoaded', initializePage);
+</script>
+
+</html>
