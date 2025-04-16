@@ -1420,11 +1420,18 @@
 
     // بستن منو هنگام کلیک روی لینک‌ها
     // در بخش مدیریت منوی موبایل، این تغییر را اعمال کنید:
-    document.querySelectorAll('.mobile-nav a[data-category]').forEach(link => {
+    document.querySelectorAll('.mobile-nav a').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
+            const section = link.getAttribute('data-section');
             const category = link.getAttribute('data-category');
-            showAllCategoryProducts(category);
+
+            if (section) {
+                scrollToSection(section);
+            } else if (category) {
+                showCategoryProducts(category);
+            }
+
             mobileNav.classList.remove('active');
             document.body.style.overflow = '';
         });
@@ -2098,9 +2105,9 @@
 
         // در حالت واقعی اینجا اطلاعات به سرور ارسال می‌شود
     }
-    
+
     // مدیریت نمایش تمام محصولات دسته‌بندی
-        document.addEventListener('DOMContentLoaded', initializePage);
+    document.addEventListener('DOMContentLoaded', initializePage);
 </script>
 
 </html>
