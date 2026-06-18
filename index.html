@@ -1,133 +1,554 @@
 <!DOCTYPE html>
-<html lang="en-us">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity Web Player | Mizban1</title>
-    <link rel="shortcut icon" href="TemplateData/favicon.ico">
-    <link rel="stylesheet" href="TemplateData/style.css">
-  </head>
-  <body>
-    <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
-      <div id="unity-loading-bar">
-        <div id="unity-logo"></div>
-        <div id="unity-progress-bar-empty">
-          <div id="unity-progress-bar-full"></div>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>مهره</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
+
+        :root {
+            --bg-main: #F5EFE6; /* رنگ کرم دقیق پس‌زمینه بر اساس تصویر */
+            --bg-card: #FFFFFF;
+            --accent: #1A51A6;  /* سرمه‌ای دکمه‌ها و تب فعال */
+            --text-main: #111111;
+            --text-muted: #6B7280;
+            --border-color: #D1D5DB;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Vazirmatn', Tahoma, sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .phone-container {
+            width: 100%;
+            max-width: 450px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background-color: var(--bg-main);
+        }
+
+        /* ===== Header ===== */
+        header {
+            padding: 24px 24px 15px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .tabs {
+            display: flex;
+            background: #E5E7EB;
+            border-radius: 12px;
+            padding: 5px;
+            width: 100%;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 8px 0;
+            border-radius: 9px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 15px;
+            color: #6B7280;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .tab.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* ===== Main Content List ===== */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 24px 24px 24px;
+        }
+
+        .game-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .card:active {
+            transform: scale(0.99);
+        }
+
+        .card-right-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .like-btn {
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-info-name {
+            font-weight: 700;
+            font-size: 18px;
+            color: #000000;
+        }
+
+        .card-left-section {
+            display: flex;
+            align-items: center;
+        }
+
+        .game-image-box {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+
+        /* ===== Custom Modal Bottom Sheet ===== */
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.15);
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 1000;
+            padding: 16px;
+        }
+
+        .modal-bottom {
+            background: var(--bg-card);
+            width: 100%;
+            max-width: 400px;
+            border-radius: 24px;
+            box-shadow: 0 -4px 25px rgba(0,0,0,0.08);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-title {
+            font-size: 19px;
+            font-weight: 800;
+            text-align: center;
+            color: #000000;
+            margin-bottom: 4px;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-title {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .choices-vertical {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .choice-row-btn {
+            background: #FFFFFF;
+            border: 1.5px solid #E5E7EB; /* کادر کمرنگ در حالت عادی */
+            color: #000000;
+            padding: 10px 16px;
+            border-radius: 14px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            text-align: right;
+            transition: all 0.2s ease;
+        }
+
+        .choice-row-btn.selected {
+            background: #F0F5FF;
+            border-color: #1A51A6; /* کادر سرمه‌ای در حالت انتخاب */
+            box-shadow: inset 0 0 0 0.5px #1A51A6;
+        }
+
+        .choice-text-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .choice-desc {
+            font-size: 12px;
+            font-weight: 500;
+            color: #6B7280;
+            margin-top: 2px;
+        }
+
+        .choice-icon-svg {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1A51A6;
+        }
+
+        .color-dot {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,0,0,0.15);
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+
+        /* بخش دکمه‌ها */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            border-top: 1px solid #E5E7EB;
+            margin-top: 5px;
+            padding-top: 12px;
+            gap: 8px;
+        }
+
+        .start-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+        }
+
+        .cancel-btn {
+            background: transparent;
+            color: #374151;
+            border: none;
+            padding: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="phone-container">
+        <header>
+            <div class="tabs">
+                <div class="tab active" id="tab-all" onclick="switchTab('all')">همه بازی‌ها</div>
+                <div class="tab" id="tab-favs" onclick="switchTab('favs')">علاقه‌مندی‌ها</div>
+            </div>
+        </header>
+
+        <main>
+            <div class="game-list" id="gameGrid"></div>
+        </main>
+
+        <div id="gameModal" class="overlay" onclick="closeModal(event)">
+            <div class="modal-bottom" onclick="event.stopPropagation()">
+                <div class="modal-title" id="modalTitle">شطرنج</div>
+                
+                <div class="options-container" id="optionsContainer"></div>
+
+                <div class="action-buttons">
+                    <button class="start-btn" onclick="startGame()">ورود به بازی</button>
+                    <button class="cancel-btn" onclick="closeModal(true)">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        <span>انصراف</span>
+                    </button>
+                </div>
+            </div>
         </div>
-      </div>
-      <div id="unity-warning"> </div>
-      <div id="unity-footer">
-        <div id="unity-logo-title-footer"></div>
-        <div id="unity-fullscreen-button"></div>
-        <div id="unity-build-title">Mizban1</div>
-      </div>
     </div>
+
     <script>
-      var canvas = document.querySelector("#unity-canvas");
+        const gamesList = [
+            { id: 'chess', name: 'شطرنج (Chess)', img: 'IMG_8449.jpeg' },
+            { id: 'nard', name: 'تخته نرد (Backgammon)', img: 'IMG_8450.jpeg' },
+            { id: 'dama', name: 'داما (Dama)', img: '5EF75682-8D3E-4A2F-96FD-A536AD2C107B.png' },
+            { id: 'checkers', name: 'چکرز (Checkers)', img: 'IMG_8478.png' },
+            { id: 'domino', name: 'دومینو (Dominoes)', img: 'IMG_8479.png' }
+        ];
 
-      // Shows a temporary message banner/ribbon for a few seconds, or
-      // a permanent error message on top of the canvas if type=='error'.
-      // If type=='warning', a yellow highlight color is used.
-      // Modify or remove this function to customize the visually presented
-      // way that non-critical warnings and error messages are presented to the
-      // user.
-      function unityShowBanner(msg, type) {
-        var warningBanner = document.querySelector("#unity-warning");
-        function updateBannerVisibility() {
-          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+        const robotIcon = `<svg class="choice-icon-svg" width="28" height="28" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .28-.06.53-.16.76L16.22 7c1.5.31 2.78 1.33 3.46 2.72L21 9a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-.13c-.47 2.83-2.92 5-5.87 5H9c-2.95 0-5.4-2.17-5.87-5H3a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2l1.32.72C6 8.33 7.28 7.31 8.78 7l2.38-2.24c-.1-.23-.16-.48-.16-.76a2 2 0 0 1 2-2M9 11a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m6 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/></svg>`;
+        const usersIcon = `<svg class="choice-icon-svg" width="28" height="28" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>`;
+
+        const gameConfigs = {
+            nard: { 
+                options: [
+                    { id: 'mode', title: '', choices: [{label: 'تک‌نفره‌‌', desc: '(بازی با هوش‌مصنوعی)', val: 'single', icon: robotIcon}, {label: 'دونفره', desc: '(روی همین گوشی)', val: 'two', icon: usersIcon}] }
+                ] 
+            },
+            chess: { 
+                options: [
+                    { id: 'mode', title: '', choices: [{label: 'تک‌نفره‌‌', desc: '(بازی با هوش‌مصنوعی)', val: 'single', icon: robotIcon}, {label: 'دونفره', desc: '(روی همین گوشی)', val: 'two', icon: usersIcon}] }
+                ] 
+            },
+            dama: { 
+                options: [
+                    { id: 'mode', title: '', choices: [{label: 'تک‌نفره‌‌', desc: '(بازی با هوش‌مصنوعی)', val: 'single', icon: robotIcon}, {label: 'دونفره', desc: '(روی همین گوشی)', val: 'two', icon: usersIcon}] },
+                    { id: 'color', title: 'رنگ مهره خود را انتخاب کنید:', choices: [{label: 'مهره سفید', val: 'white', dot: '#FFFFFF'}, {label: 'مهره سیاه', val: 'black', dot: '#1E293B'}] }
+                ] 
+            },
+            checkers: { 
+                options: [
+                    { id: 'mode', title: '', choices: [{label: 'تک‌نفره‌‌', desc: '(بازی با هوش‌مصنوعی)', val: 'single', icon: robotIcon}, {label: 'دونفره', desc: '(روی همین گوشی)', val: 'two', icon: usersIcon}] },
+                    { id: 'color', title: 'رنگ مهره خود را انتخاب کنید:', choices: [{label: 'مهره سفید', val: 'white', dot: '#FFFFFF'}, {label: 'مهره سیاه', val: 'black', dot: '#1E293B'}] }
+                ] 
+            },
+            domino: { 
+                options: [
+                    { id: 'score', title: 'امتیاز پایان بازی را انتخاب کنید:', choices: [{label: '۵۰ امتیاز', desc: '(متوسط)', val: '50'}, {label: '۱۰۱ امتیاز', desc: '(استاندارد)', val: '101'}, {label: '۱۵۰ امتیاز', desc: '(حرفه‌ای و طولانی)', val: '150'}] }
+                ] 
+            }
+        };
+
+        let favorites = JSON.parse(localStorage.getItem('game_hub_favs')) || [];
+        let currentTab = 'all';
+        let activeGame = null;
+        let selectedOptions = {};
+
+        function init() {
+            renderGames();
         }
-        var div = document.createElement('div');
-        div.innerHTML = msg;
-        warningBanner.appendChild(div);
-        if (type == 'error') div.style = 'background: red; padding: 10px;';
-        else {
-          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
-          setTimeout(function() {
-            warningBanner.removeChild(div);
-            updateBannerVisibility();
-          }, 5000);
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            
+            if (tab === 'all') {
+                document.getElementById('tab-all').classList.add('active');
+            } else {
+                document.getElementById('tab-favs').classList.add('active');
+            }
+            renderGames();
         }
-        updateBannerVisibility();
-      }
 
-      var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/mizbanandroid.loader.js";
-      var config = {
-        arguments: [],
-        dataUrl: buildUrl + "/mizbanandroid.data",
-        frameworkUrl: buildUrl + "/mizbanandroid.framework.js",
-        codeUrl: buildUrl + "/mizbanandroid.wasm",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "DefaultCompany",
-        productName: "Mizban1",
-        productVersion: "1.0",
-        showBanner: unityShowBanner,
-        // errorHandler: function(err, url, line) {
-        //    alert("error " + err + " occurred at line " + line);
-        //    // Return 'true' if you handled this error and don't want Unity
-        //    // to process it further, 'false' otherwise.
-        //    return true;
-        // },
-      };
+        function toggleLike(event, gameId) {
+            event.stopPropagation();
+            const index = favorites.indexOf(gameId);
+            if (index > -1) {
+                favorites.splice(index, 1);
+            } else {
+                favorites.push(gameId);
+            }
+            localStorage.setItem('game_hub_favs', JSON.stringify(favorites));
+            renderGames();
+        }
 
-      // By default, Unity keeps WebGL canvas render target size matched with
-      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
-      // Set this to false if you want to decouple this synchronization from
-      // happening inside the engine, and you would instead like to size up
-      // the canvas DOM size and WebGL render target sizes yourself.
-      // config.matchWebGLToCanvasSize = false;
+        function renderGames() {
+            const grid = document.getElementById('gameGrid');
+            grid.innerHTML = '';
 
-      // If you would like all file writes inside Unity Application.persistentDataPath
-      // directory to automatically persist so that the contents are remembered when
-      // the user revisits the site the next time, uncomment the following line:
-      // config.autoSyncPersistentDataPath = true;
-      // This autosyncing is currently not the default behavior to avoid regressing
-      // existing user projects that might rely on the earlier manual
-      // JS_FileSystem_Sync() behavior, but in future Unity version, this will be
-      // expected to change.
+            let gamesToShow = currentTab === 'all' 
+                ? gamesList 
+                : gamesList.filter(g => favorites.includes(g.id));
 
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
+            if (gamesToShow.length === 0 && currentTab === 'favs') {
+                grid.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding-top: 30px; font-weight:700;">هیچ بازی در علاقه‌مندی‌ها نیست.</p>';
+                return;
+            }
 
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
-        document.querySelector("#unity-container").className = "unity-mobile";
-        canvas.className = "unity-mobile";
+            gamesToShow.forEach(game => {
+                const isLiked = favorites.includes(game.id);
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.onclick = () => openGameModal(game);
+                
+                card.innerHTML = `
+                    <div class="card-right-section">
+                        <button class="like-btn" onclick="toggleLike(event, '${game.id}')">
+                            ${isLiked ? '❤️' : '🤍'}
+                        </button>
+                        <span class="card-info-name">${game.name}</span>
+                    </div>
+                    <div class="card-left-section">
+                        <img src="${game.img}" alt="${game.name}" class="game-image-box" onerror="this.style.backgroundColor='#E5E7EB'; this.removeAttribute('src');">
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
 
-        // To lower canvas resolution on mobile devices to gain some
-        // performance, uncomment the following line:
-        // config.devicePixelRatio = 1;
+        function openGameModal(game) {
+            activeGame = game;
+            selectedOptions = {};
+            
+            const shortName = game.name.split(' ')[0];
+            document.getElementById('modalTitle').innerText = shortName;
+            
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
 
+            const config = gameConfigs[game.id];
 
-      } else {
-        // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
-        canvas.style.width = "960px";
-        canvas.style.height = "600px";
-      }
+            if (!config || config.options.length === 0) {
+                container.innerHTML = '<div style="color:var(--text-muted); text-align:center; font-size:15px; padding:15px 0; font-weight:700;">این بازی تنظیمات اضافی ندارد و مستقیم اجرا می‌شود.</div>';
+            } else {
+                config.options.forEach(opt => {
+                    const group = document.createElement('div');
+                    group.className = 'option-group';
+                    
+                    if(opt.title) {
+                        const title = document.createElement('div');
+                        title.className = 'option-title';
+                        title.innerText = opt.title;
+                        group.appendChild(title);
+                    }
 
-      document.querySelector("#unity-loading-bar").style.display = "block";
+                    const choicesDiv = document.createElement('div');
+                    choicesDiv.className = 'choices-vertical';
 
-      var script = document.createElement("script");
-      script.src = loaderUrl;
-      script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
-              }).then((unityInstance) => {
-                document.querySelector("#unity-loading-bar").style.display = "none";
-                document.querySelector("#unity-fullscreen-button").onclick = () => {
-                  unityInstance.SetFullscreen(1);
-                };
+                    // انتخاب پیش‌فرض اولین گزینه
+                    selectedOptions[opt.id] = opt.choices[0].val;
 
-              }).catch((message) => {
-                alert(message);
-              });
-            };
+                    opt.choices.forEach((choice, index) => {
+                        const btn = document.createElement('button');
+                        // افزودن کلاس selected به گزینه اول به صورت پیش‌فرض
+                        btn.className = `choice-row-btn ${index === 0 ? 'selected' : ''}`;
+                        
+                        let dotHtml = '';
+                        if(choice.dot) {
+                            dotHtml = `<span class="color-dot" style="background-color: ${choice.dot}"></span>`;
+                        }
+                        
+                        let descHtml = choice.desc ? `<span class="choice-desc">${choice.desc}</span>` : '';
+                        let iconHtml = choice.icon ? choice.icon : '';
+                        
+                        btn.innerHTML = `
+                            <div class="choice-text-container">
+                                <span style="font-size:16px; font-weight:700;">${dotHtml} ${choice.label}</span>
+                                ${descHtml}
+                            </div>
+                            ${iconHtml}
+                        `;
+                        
+                        btn.onclick = () => {
+                            // به‌روزرسانی مقدار انتخاب شده در آبجکت فنی
+                            selectedOptions[opt.id] = choice.val;
+                            
+                            // مدیریت تغییر استایل ظاهری فعال بودن دکمه‌ها در این گروه
+                            choicesDiv.querySelectorAll('.choice-row-btn').forEach(b => b.classList.remove('selected'));
+                            btn.classList.add('selected');
+                        };
+                        choicesDiv.appendChild(btn);
+                    });
 
-      document.body.appendChild(script);
+                    group.appendChild(choicesDiv);
+                    container.appendChild(group);
+                });
+            }
 
+            document.getElementById('gameModal').style.display = 'flex';
+        }
+
+        function closeModal(force = false) {
+            if (force || (event && event.target.id === 'gameModal')) {
+                document.getElementById('gameModal').style.display = 'none';
+                activeGame = null;
+            }
+        }
+
+        function startGame() {
+            if (!activeGame) return;
+
+            const gId = activeGame.id;
+
+            if (gId === 'domino') {
+                const urlScore = selectedOptions.score || '50';
+                window.location.href = `domino.html?score=${urlScore}`;
+                return;
+            }
+
+            if (gId === 'nard' || gId === 'chess') {
+                const urlMode = (selectedOptions.mode === 'single') ? 'robot' : 'two';
+                window.location.href = `${gId}.html?mode=${urlMode}`;
+                return;
+            }
+
+            if (gId === 'dama') {
+                const urlMode = (selectedOptions.mode === 'single') ? 'robot' : 'two';
+                const colorParam = selectedOptions.color ? `&color=${selectedOptions.color}` : '&color=white';
+                window.location.href = `dama.html?mode=${urlMode}${colorParam}`;
+                return;
+            }
+
+            if (gId === 'checkers') {
+                const urlMode = (selectedOptions.mode === 'single') ? 'robot' : 'two';
+                const colorParam = selectedOptions.color ? `&color=${selectedOptions.color}` : '&color=white';
+                window.location.href = `chakers.html?mode=${urlMode}${colorParam}`;
+                return;
+            }
+        }
+
+        init();
     </script>
-  </body>
+</body>
 </html>
