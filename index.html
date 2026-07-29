@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Rotate City</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="theme-color" content="#F5F7FA" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div id="app">
+  <canvas id="game-canvas"></canvas>
+
+  <div id="tap-hint">
+    <span>&#8592; Rotate Left</span>
+    <span>Rotate Right &#8594;</span>
+  </div>
+
+  <div id="hud-top">
+    <div class="hud-pill" id="hud-level">Level 1</div>
+    <div class="hud-pill" id="hud-coins">0</div>
+  </div>
+
+  <div id="hud-bottom">
+    <button class="icon-btn" id="btn-restart" title="Restart">&#8635;</button>
+    <button class="icon-btn" id="btn-pause" title="Pause">&#10074;&#10074;</button>
+    <button class="icon-btn" id="btn-settings" title="Settings">&#9881;</button>
+  </div>
+
+  <!-- Pause -->
+  <div class="screen" id="screen-pause">
+    <div class="card">
+      <h2>Paused</h2>
+      <p>Take a breath, the city isn't going anywhere.</p>
+      <button class="btn btn-primary" id="btn-resume">Resume</button>
+      <button class="btn btn-secondary" id="btn-pause-restart">Restart Level</button>
+    </div>
+  </div>
+
+  <!-- Settings -->
+  <div class="screen" id="screen-settings">
+    <div class="card">
+      <h2>Settings</h2>
+      <p>Sound &amp; garage</p>
+      <button class="btn btn-secondary" id="toggle-sound">Sound: On</button>
+      <div id="car-skin-list"></div>
+      <button class="btn btn-primary" id="btn-close-settings">Close</button>
+    </div>
+  </div>
+
+  <!-- Win -->
+  <div class="screen" id="screen-win">
+    <div class="card">
+      <h2>Nice Driving!</h2>
+      <p>Coins collected</p>
+      <div class="big-stat" id="win-coins">+0</div>
+      <button class="btn btn-primary" id="btn-next-level">Next Level</button>
+    </div>
+  </div>
+
+  <!-- Fail -->
+  <div class="screen" id="screen-fail">
+    <div class="card">
+      <h2>Crashed!</h2>
+      <p class="big-stat fail">&#128165;</p>
+      <button class="btn btn-primary" id="btn-retry">Try Again</button>
+    </div>
+  </div>
+</div>
+
+<!-- Load order matters: Utils first, Game/main last. Plain scripts (no
+     type="module") so the game runs correctly even opened directly from
+     disk via file://, with no bundler and no network requests. -->
+<script src="scripts/Utils.js"></script>
+<script src="scripts/Tile.js"></script>
+<script src="scripts/Car.js"></script>
+<script src="scripts/Level.js"></script>
+<script src="scripts/Generator.js"></script>
+<script src="scripts/Input.js"></script>
+<script src="scripts/Audio.js"></script>
+<script src="scripts/Save.js"></script>
+<script src="scripts/Ads.js"></script>
+<script src="scripts/UI.js"></script>
+<script src="levels/levels.js"></script>
+<script src="scripts/Game.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
