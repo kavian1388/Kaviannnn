@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>ONE BULLET</title>
+<meta name="theme-color" content="#050506" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div id="app">
+  <canvas id="game-canvas"></canvas>
+
+  <!-- HUD (always mounted, only meaningful while in-game) -->
+  <div id="hud">
+    <div id="hud-top">
+      <div class="hud-pill glass-panel" id="hud-level-pill"><span id="hud-level">LEVEL 1</span></div>
+      <div class="hud-pill glass-panel" id="hud-bounces-pill">Bounces <span id="hud-bounces">0/3</span></div>
+      <div class="hud-pill glass-panel" id="hud-coins-pill"><span class="dot"></span><span id="hud-coins">0</span></div>
+      <div class="icon-btn" id="btn-pause">II</div>
+    </div>
+    <div id="combo-banner"></div>
+    <div id="perfect-banner">PERFECT SHOT</div>
+    <div id="coin-float"></div>
+    <div class="aim-hint" id="aim-hint">Drag to aim &middot; Release to fire</div>
+  </div>
+
+  <!-- Loading -->
+  <div class="screen active" data-screen="loading" id="screen-loading">
+    <div class="loader-ring"></div>
+  </div>
+
+  <!-- Main menu -->
+  <div class="screen" data-screen="menu" id="screen-menu">
+    <div class="logo-wrap">
+      <div class="logo-title">ONE<span> BULLET</span></div>
+      <div class="logo-sub">One shot. Every wall. No mercy.</div>
+      <div class="hud-pill glass-panel menu-coin-pill"><span class="dot"></span><span id="menu-coins">0</span> COINS</div>
+    </div>
+    <div class="menu-actions">
+      <button class="btn btn-primary btn-block" id="btn-play">PLAY</button>
+    </div>
+    <div class="menu-secondary-row">
+      <button class="btn btn-ghost" id="btn-skins">SKINS</button>
+      <button class="btn btn-ghost" id="btn-daily">DAILY<span class="badge-dot hidden" id="daily-badge"></span></button>
+      <button class="btn btn-ghost" id="btn-achievements">AWARDS</button>
+    </div>
+    <div class="menu-secondary-row">
+      <button class="btn btn-ghost" id="btn-stats">STATS</button>
+      <button class="btn btn-ghost" id="btn-settings">SETTINGS</button>
+    </div>
+  </div>
+
+  <!-- Level select -->
+  <div class="screen" data-screen="level-select" id="screen-level-select">
+    <div class="panel-header" style="margin-top: max(20px, env(safe-area-inset-top));">
+      <div class="icon-btn" data-back="menu">&#8592;</div>
+      <div class="panel-title">SELECT LEVEL</div>
+      <div style="width:46px;"></div>
+    </div>
+    <div id="level-grid"></div>
+  </div>
+
+  <!-- Game screen (canvas is the visual, this just gates HUD interactivity) -->
+  <div class="screen" data-screen="game" id="screen-game"></div>
+
+  <!-- Pause -->
+  <div class="screen overlay" data-screen="pause" id="screen-pause">
+    <div class="glass-panel pause-card">
+      <div class="panel-title" style="text-align:center;margin-bottom:8px;">PAUSED</div>
+      <button class="btn btn-primary btn-block" id="btn-resume">RESUME</button>
+      <button class="btn btn-ghost btn-block" id="btn-pause-restart">RESTART</button>
+      <button class="btn btn-ghost btn-block" id="btn-pause-menu">MAIN MENU</button>
+    </div>
+  </div>
+
+  <!-- Win -->
+  <div class="screen overlay" data-screen="win" id="screen-win">
+    <div class="glass-panel result-card">
+      <div class="result-title">MISSION COMPLETE</div>
+      <div class="result-level" id="win-level-label">LEVEL 1 CLEARED</div>
+      <div class="stars-row" id="win-stars">★★★</div>
+      <div class="result-perfect hidden" id="win-perfect">PERFECT SHOT</div>
+      <div class="result-coins" id="win-coins">+0</div>
+      <div class="result-meta" id="win-bounces">1 bounce (par 1)</div>
+      <div class="result-actions">
+        <button class="btn btn-ghost" id="btn-win-menu">MENU</button>
+        <button class="btn btn-primary" id="btn-win-next">NEXT ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lose -->
+  <div class="screen overlay" data-screen="lose" id="screen-lose">
+    <div class="glass-panel result-card">
+      <div class="lose-icon">✕</div>
+      <div class="result-title">SO CLOSE</div>
+      <div class="result-level" id="lose-level-label">LEVEL 1</div>
+      <div class="result-meta">The bullet stopped before every target fell.</div>
+      <div class="result-actions">
+        <button class="btn btn-ghost" id="btn-lose-menu">MENU</button>
+        <button class="btn btn-primary" id="btn-lose-retry">RETRY</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skins -->
+  <div class="screen sub-screen" data-screen="skins" id="screen-skins">
+    <div class="panel-header" style="margin-top: max(20px, env(safe-area-inset-top));">
+      <div class="icon-btn" data-back="menu">&#8592;</div>
+      <div class="panel-title">WEAPON SKINS</div>
+      <div style="width:46px;"></div>
+    </div>
+    <div class="sub-body"><div id="skins-grid"></div></div>
+  </div>
+
+  <!-- Daily -->
+  <div class="screen sub-screen" data-screen="daily" id="screen-daily">
+    <div class="panel-header" style="margin-top: max(20px, env(safe-area-inset-top));">
+      <div class="icon-btn" data-back="menu">&#8592;</div>
+      <div class="panel-title">DAILY</div>
+      <div style="width:46px;"></div>
+    </div>
+    <div class="sub-body">
+      <div class="section-label">7-Day Login</div>
+      <div class="login-track" id="login-track"></div>
+      <div class="section-label">Today's Missions</div>
+      <div id="missions-list"></div>
+    </div>
+  </div>
+
+  <!-- Achievements -->
+  <div class="screen sub-screen" data-screen="achievements" id="screen-achievements">
+    <div class="panel-header" style="margin-top: max(20px, env(safe-area-inset-top));">
+      <div class="icon-btn" data-back="menu">&#8592;</div>
+      <div class="panel-title">ACHIEVEMENTS</div>
+      <div style="width:46px;"></div>
+    </div>
+    <div class="sub-body"><div id="achievements-list"></div></div>
+  </div>
+
+  <!-- Statistics -->
+  <div class="screen sub-screen" data-screen="stats" id="screen-stats">
+    <div class="panel-header" style="margin-top: max(20px, env(safe-area-inset-top));">
+      <div class="icon-btn" data-back="menu">&#8592;</div>
+      <div class="panel-title">STATISTICS</div>
+      <div style="width:46px;"></div>
+    </div>
+    <div class="sub-body"><div id="stats-list"></div></div>
+  </div>
+
+  <!-- Settings -->
+  <div class="screen sub-screen" data-screen="settings" id="screen-settings">
+    <div class="panel-header" style="margin-top: max(20px, env(safe-area-inset-top));">
+      <div class="icon-btn" data-back="menu">&#8592;</div>
+      <div class="panel-title">SETTINGS</div>
+      <div style="width:46px;"></div>
+    </div>
+    <div class="sub-body">
+      <div class="setting-row">
+        <span>Sound Effects</span>
+        <label class="switch"><input type="checkbox" id="setting-sound" /><span class="slider"></span></label>
+      </div>
+      <div class="setting-row">
+        <span>Haptics</span>
+        <label class="switch"><input type="checkbox" id="setting-haptics" /><span class="slider"></span></label>
+      </div>
+      <button class="btn btn-ghost btn-block" id="btn-reset-progress" style="margin-top:20px;">RESET PROGRESS</button>
+    </div>
+  </div>
+
+  <!-- Daily login reward popup -->
+  <div class="screen overlay" data-screen="daily-popup" id="daily-popup">
+    <div class="glass-panel daily-popup-card">
+      <div class="daily-popup-day" id="daily-popup-day">DAY 1 REWARD</div>
+      <div class="daily-popup-reward" id="daily-popup-reward">+50</div>
+      <button class="btn btn-primary btn-block" id="btn-daily-popup-claim">COLLECT</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="levels/levels.js"></script>
+<script src="scripts/Utils.js"></script>
+<script src="scripts/Audio.js"></script>
+<script src="scripts/Save.js"></script>
+<script src="scripts/Physics.js"></script>
+<script src="scripts/Collision.js"></script>
+<script src="scripts/Particles.js"></script>
+<script src="scripts/SkinManager.js"></script>
+<script src="scripts/Player.js"></script>
+<script src="scripts/Weapon.js"></script>
+<script src="scripts/Bullet.js"></script>
+<script src="scripts/Enemy.js"></script>
+<script src="scripts/Renderer.js"></script>
+<script src="scripts/LevelManager.js"></script>
+<script src="scripts/AchievementManager.js"></script>
+<script src="scripts/MissionManager.js"></script>
+<script src="scripts/AdsManager.js"></script>
+<script src="scripts/Animation.js"></script>
+<script src="scripts/UI.js"></script>
+<script src="scripts/Input.js"></script>
+<script src="scripts/Game.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
