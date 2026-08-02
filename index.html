@@ -1,0 +1,1818 @@
+<!DOCTYPE html>
+<html lang="fa">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>NEON STACK</title>
+    <style>
+        :root {
+            --bg-deep: #0B0E1A;
+            --bg-mid: #131829;
+            --violet: #8B5CF6;
+            --cyan: #22D3EE;
+            --pink: #F472B6;
+            --amber: #FBBF24;
+            --gold: #FFD24D;
+            --ink: #F5F5FF;
+            --ink-dim: #8890B5;
+            --panel: rgba(19, 24, 41, .92);
+            --red: #FB7185;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: var(--bg-deep);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            touch-action: manipulation;
+            overscroll-behavior: none;
+        }
+
+        #wrap {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        canvas {
+            display: block;
+            touch-action: none;
+        }
+
+        #hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            padding-top: env(safe-area-inset-top, 20px);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        #score {
+            font-family: 'Courier New', Consolas, monospace;
+            font-weight: 700;
+            font-size: 52px;
+            color: var(--ink);
+            text-shadow: 0 0 20px rgba(139, 92, 246, .55);
+            letter-spacing: 1px;
+            line-height: 1;
+        }
+
+        #modeLabel {
+            margin-top: 2px;
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 11px;
+            letter-spacing: 3px;
+            color: var(--ink-dim);
+            text-transform: uppercase;
+        }
+
+        #combo {
+            margin-top: 4px;
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: var(--amber);
+            opacity: 0;
+            transition: opacity .15s ease;
+            text-transform: uppercase;
+        }
+
+        #combo.show {
+            opacity: 1;
+        }
+
+        #topLeft,
+        #topRight {
+            position: absolute;
+            top: 20px;
+            top: env(safe-area-inset-top, 20px);
+            display: flex;
+            flex-direction: column;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        #topLeft>*+*,
+        #topRight>*+* {
+            margin-top: 6px;
+        }
+
+        #topLeft {
+            left: 14px;
+            align-items: flex-start;
+        }
+
+        #topRight {
+            right: 14px;
+            align-items: flex-end;
+        }
+
+        .pill {
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            background: rgba(19, 24, 41, .7);
+            border: 1px solid rgba(139, 92, 246, .3);
+            padding: 5px 10px;
+            border-radius: 999px;
+            color: var(--ink);
+            display: flex;
+            align-items: center;
+            backdrop-filter: blur(6px);
+        }
+
+        .pill>*+* {
+            margin-left: 5px;
+        }
+
+        .pill.coin {
+            color: var(--gold);
+        }
+
+        .pill.streak {
+            color: var(--pink);
+        }
+
+        .coin-ico {
+            width: 1.05em;
+            height: 1.05em;
+            vertical-align: -0.18em;
+            flex-shrink: 0;
+        }
+
+        #adslot {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(19, 24, 41, .65);
+            border-top: 1px solid rgba(139, 92, 246, .25);
+            backdrop-filter: blur(6px);
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: var(--ink-dim);
+            z-index: 6;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(ellipse at 50% 30%, rgba(139, 92, 246, .18), transparent 60%), rgba(11, 14, 26, .82);
+            backdrop-filter: blur(10px);
+            z-index: 10;
+            text-align: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .title {
+            font-size: 40px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            background: linear-gradient(90deg, var(--violet), var(--cyan), var(--pink));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 12px;
+            color: var(--ink-dim);
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }
+
+        .statsRow {
+            display: flex;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .statsRow>* {
+            margin: 5px;
+        }
+
+        .heartsRow {
+            display: flex;
+            align-items: center;
+        }
+
+        .heartsRow>*+* {
+            margin-left: 6px;
+        }
+
+        .heart {
+            font-size: 16px;
+            filter: drop-shadow(0 0 4px rgba(251, 113, 133, .5));
+        }
+
+        .heart.empty {
+            opacity: .25;
+            filter: none;
+        }
+
+        .livesTimer {
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 10px;
+            color: var(--ink-dim);
+            margin-left: 4px;
+        }
+
+        .spinBtn {
+            position: relative;
+            width: 84%;
+            max-width: 300px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--bg-deep);
+            background: linear-gradient(90deg, var(--gold), var(--amber));
+            border: none;
+            padding: 12px 20px;
+            border-radius: 14px;
+            letter-spacing: .5px;
+            cursor: pointer;
+            margin-bottom: 12px;
+            box-shadow: 0 6px 22px rgba(255, 210, 77, .35);
+        }
+
+        .spinBtn:disabled {
+            opacity: .55;
+            box-shadow: none;
+            cursor: default;
+        }
+
+        .dot {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--red);
+            box-shadow: 0 0 0 2px var(--bg-deep);
+            animation: dotPulse 1.4s ease-in-out infinite;
+        }
+
+        @keyframes dotPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.25);
+            }
+        }
+
+        .challengeCard {
+            width: 88%;
+            max-width: 320px;
+            background: var(--panel);
+            border: 1px solid rgba(139, 92, 246, .3);
+            border-radius: 16px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            text-align: left;
+        }
+
+        .challengeCard .lbl {
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: var(--amber);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .challengeCard .desc {
+            font-size: 14px;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .barTrack {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, .08);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .barFill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--cyan), var(--violet));
+            border-radius: 99px;
+            transition: width .3s ease;
+        }
+
+        .challengeCard.done {
+            border-color: var(--gold);
+        }
+
+        .challengeCard.done .barFill {
+            background: var(--gold);
+        }
+
+        .modeBtn {
+            width: 84%;
+            max-width: 300px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--ink);
+            background: rgba(255, 255, 255, .04);
+            border: 1.5px solid rgba(139, 92, 246, .4);
+            padding: 14px 20px;
+            border-radius: 14px;
+            letter-spacing: .5px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-sizing: border-box;
+        }
+
+        .modeBtn small {
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 10px;
+            color: var(--ink-dim);
+            letter-spacing: 1px;
+        }
+
+        .modeBtn.primary {
+            background: linear-gradient(90deg, var(--cyan), var(--violet));
+            color: var(--bg-deep);
+            border: none;
+            box-shadow: 0 8px 26px rgba(139, 92, 246, .4);
+        }
+
+        .modeBtn.primary small {
+            color: rgba(11, 14, 26, .6);
+        }
+
+        .linkRow {
+            display: flex;
+            margin-top: 6px;
+        }
+
+        .linkRow>*+* {
+            margin-left: 22px;
+        }
+
+        .linkBtn {
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 12px;
+            letter-spacing: 2px;
+            color: var(--ink-dim);
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(136, 144, 181, .4);
+            padding-bottom: 2px;
+        }
+
+        .tapbtn {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            font-weight: 700;
+            font-size: 17px;
+            color: var(--bg-deep);
+            background: linear-gradient(90deg, var(--cyan), var(--violet));
+            border: none;
+            padding: 14px 40px;
+            border-radius: 999px;
+            box-shadow: 0 8px 30px rgba(139, 92, 246, .45);
+            letter-spacing: 1px;
+            cursor: pointer;
+        }
+
+        .tapbtn.pulse {
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .gameover-score {
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 72px;
+            font-weight: 700;
+            color: var(--ink);
+            line-height: 1;
+            text-shadow: 0 0 30px rgba(244, 114, 182, .5);
+        }
+
+        .gameover-label {
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 12px;
+            letter-spacing: 3px;
+            color: var(--ink-dim);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .nearMiss {
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 12px;
+            color: var(--pink);
+            letter-spacing: .5px;
+            margin-top: 8px;
+            min-height: 16px;
+        }
+
+        .rewardRow {
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .rewardRow>* {
+            margin: 5px;
+        }
+
+        .newbest {
+            display: inline-block;
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: var(--bg-deep);
+            background: var(--amber);
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-weight: 700;
+        }
+
+        .coinsEarned {
+            display: inline-block;
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 12px;
+            letter-spacing: 1px;
+            color: var(--gold);
+            background: rgba(255, 210, 77, .12);
+            border: 1px solid rgba(255, 210, 77, .4);
+            padding: 4px 12px;
+            border-radius: 999px;
+        }
+
+        .btnRow {
+            display: flex;
+            margin-top: 22px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btnRow>* {
+            margin: 6px;
+        }
+
+        .ghostbtn {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--ink);
+            background: rgba(255, 255, 255, .06);
+            border: 1.5px solid rgba(255, 255, 255, .15);
+            padding: 13px 24px;
+            border-radius: 999px;
+            cursor: pointer;
+            letter-spacing: .5px;
+        }
+
+        .shopList {
+            width: 90%;
+            max-width: 340px;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+
+        .shopList>*+* {
+            margin-top: 10px;
+        }
+
+        .skinRow {
+            display: flex;
+            align-items: center;
+            background: var(--panel);
+            border: 1.5px solid rgba(139, 92, 246, .25);
+            border-radius: 14px;
+            padding: 10px 14px;
+            text-align: left;
+        }
+
+        .skinRow>*+* {
+            margin-left: 12px;
+        }
+
+        .skinRow.selected {
+            border-color: var(--cyan);
+        }
+
+        .swatch {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            flex-shrink: 0;
+            box-shadow: 0 0 14px rgba(0, 0, 0, .4);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .swatch img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            border-radius: 12px;
+        }
+
+        .skinInfo {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .skinInfo .n {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .skinInfo .c {
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 11px;
+            color: var(--ink-dim);
+        }
+
+        .skinBtn {
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .skinBtn.buy {
+            background: var(--gold);
+            color: var(--bg-deep);
+        }
+
+        .skinBtn.owned {
+            background: rgba(255, 255, 255, .08);
+            color: var(--ink-dim);
+        }
+
+        .skinBtn.active {
+            background: var(--cyan);
+            color: var(--bg-deep);
+        }
+
+        .lbList {
+            width: 88%;
+            max-width: 320px;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+
+        .lbList>*+* {
+            margin-top: 8px;
+        }
+
+        .lbRow {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--panel);
+            border: 1px solid rgba(139, 92, 246, .2);
+            border-radius: 12px;
+            padding: 10px 16px;
+        }
+
+        .lbRow .rank {
+            font-family: 'Courier New', Consolas, monospace;
+            color: var(--violet);
+            font-weight: 700;
+            width: 26px;
+        }
+
+        .lbRow .sc {
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--ink);
+            flex: 1;
+            text-align: left;
+            padding-left: 8px;
+        }
+
+        .lbRow .md {
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 10px;
+            color: var(--ink-dim);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .lbEmpty {
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 12px;
+            color: var(--ink-dim);
+            padding: 20px;
+        }
+
+        #toastLayer {
+            position: absolute;
+            top: 14%;
+            left: 0;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        #toastLayer>*+* {
+            margin-top: 8px;
+        }
+
+        .toast {
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 12px;
+            letter-spacing: 1px;
+            color: var(--ink);
+            background: rgba(19, 24, 41, .92);
+            border: 1px solid rgba(255, 210, 77, .5);
+            border-radius: 999px;
+            padding: 9px 18px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, .4);
+            animation: toastIn .25s ease, toastOut .4s ease 2.6s forwards;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes toastOut {
+            to {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+        }
+
+        .wheelWrap {
+            position: relative;
+            width: 74%;
+            max-width: 280px;
+            height: 74vw;
+            max-height: 280px;
+            aspect-ratio: 1;
+            margin: 10px auto 22px;
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, .15);
+            box-shadow: 0 0 40px rgba(139, 92, 246, .35), inset 0 0 20px rgba(0, 0, 0, .3);
+            position: relative;
+        }
+
+        .wheelLabel {
+            position: absolute;
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 11px;
+            font-weight: 700;
+            color: #0B0E1A;
+            white-space: nowrap;
+            pointer-events: none;
+            text-align: center;
+        }
+
+        .pointer {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 18px solid var(--gold);
+            z-index: 2;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .4));
+        }
+
+        .hub {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--bg-deep);
+            border: 3px solid var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            z-index: 2;
+        }
+
+        #wheelResult {
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 14px;
+            color: var(--gold);
+            min-height: 20px;
+            margin-bottom: 14px;
+        }
+
+        .heartBig {
+            font-size: 52px;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 10px rgba(251, 113, 133, .5));
+        }
+
+        #noLivesTimer {
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 28px;
+            color: var(--ink);
+            margin: 10px 0 4px;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <svg width="0" height="0" style="position:absolute;overflow:hidden">
+        <symbol id="icon-coin" viewBox="0 0 32 32">
+            <circle cx="16" cy="16" r="15" fill="#FFD24D" stroke="#B8860B" stroke-width="1.5" />
+            <circle cx="16" cy="16" r="11.5" fill="none" stroke="#B8860B" stroke-width="1.4" />
+            <text x="16" y="21.5" font-family="Arial, sans-serif" font-weight="900" font-size="15" text-anchor="middle"
+                fill="#B8860B">$</text>
+            <path d="M9 10.5c1.2-2 3.4-3.2 5.8-3.4" stroke="#FFF4C2" stroke-width="1.6" stroke-linecap="round"
+                fill="none" opacity="0.75" />
+        </symbol>
+    </svg>
+    <div id="wrap">
+        <canvas id="game"></canvas>
+
+        <div id="hud">
+            <div id="score">0</div>
+            <div id="modeLabel"></div>
+            <div id="combo">COMBO</div>
+        </div>
+        <div id="topLeft">
+            <div class="pill coin"><svg class="coin-ico">
+                    <use href="#icon-coin" xlink:href="#icon-coin"></use>
+                </svg> <b id="coinHud">0</b></div>
+        </div>
+        <div id="topRight">
+            <div class="pill">BEST <b id="bestHud">0</b></div>
+        </div>
+
+        <div id="toastLayer"></div>
+
+        <div id="start" class="overlay">
+            <div class="title">NEON STACK</div>
+            <div class="subtitle">Tap to drop &middot; Stack them perfectly</div>
+
+            <div class="statsRow">
+                <div class="pill coin"><svg class="coin-ico">
+                        <use href="#icon-coin" xlink:href="#icon-coin"></use>
+                    </svg> <b id="coinStart">0</b></div>
+                <div class="pill streak">🔥 <b id="streakStart">0</b> day streak</div>
+            </div>
+            <div class="statsRow">
+                <div class="pill heartsRow" id="livesRow"></div>
+            </div>
+
+            <button class="spinBtn" id="openWheelBtn"><span id="spinLabel">🎡 FREE DAILY SPIN</span><span
+                    class="dot hidden" id="spinDot"></span></button>
+
+            <div class="challengeCard" id="challengeCard">
+                <div class="lbl"><span>Daily Challenge</span><span id="challengeReward">+100</span></div>
+                <div class="desc" id="challengeDesc">Loading...</div>
+                <div class="barTrack">
+                    <div class="barFill" id="challengeBar" style="width:0%"></div>
+                </div>
+            </div>
+
+            <button class="modeBtn primary" data-mode="endless">ENDLESS <small>classic</small></button>
+            <button class="modeBtn" data-mode="timeattack">TIME ATTACK <small>60 seconds</small></button>
+            <button class="modeBtn" data-mode="precision">PRECISION <small>tight tolerance · 2x coins</small></button>
+
+            <div class="linkRow">
+                <button class="linkBtn" id="openShop">Shop</button>
+                <button class="linkBtn" id="openBoard">Best Runs</button>
+            </div>
+        </div>
+
+        <div id="gameover" class="overlay hidden">
+            <div class="gameover-label">Score</div>
+            <div class="gameover-score" id="finalScore">0</div>
+            <div class="nearMiss" id="nearMiss"></div>
+            <div class="rewardRow">
+                <span class="newbest hidden" id="newbestTag">NEW BEST</span>
+                <span class="coinsEarned" id="coinsEarnedTag">+0 <svg class="coin-ico">
+                        <use href="#icon-coin" xlink:href="#icon-coin"></use>
+                    </svg></span>
+                <span class="newbest hidden" id="challengeDoneTag" style="background:var(--gold);">CHALLENGE +100</span>
+            </div>
+            <div class="btnRow">
+                <button class="tapbtn" id="restartBtn">RETRY</button>
+                <button class="ghostbtn" id="shareBtn">SHARE</button>
+                <button class="ghostbtn" id="menuBtn">MENU</button>
+            </div>
+        </div>
+
+        <div id="shop" class="overlay hidden">
+            <div class="title" style="font-size:28px;">SHOP</div>
+            <div class="statsRow">
+                <div class="pill coin"><svg class="coin-ico">
+                        <use href="#icon-coin" xlink:href="#icon-coin"></use>
+                    </svg> <b id="coinShop">0</b></div>
+            </div>
+            <div class="shopList" id="shopList"></div>
+            <button class="ghostbtn" id="closeShop">CLOSE</button>
+        </div>
+
+        <div id="board" class="overlay hidden">
+            <div class="title" style="font-size:28px;">BEST RUNS</div>
+            <div class="subtitle">Personal · stored on this device</div>
+            <div class="lbList" id="lbList"></div>
+            <button class="ghostbtn" id="closeBoard">CLOSE</button>
+        </div>
+
+        <div id="wheelOv" class="overlay hidden">
+            <div class="title" style="font-size:26px;">DAILY SPIN</div>
+            <div class="subtitle">One free spin every day</div>
+            <div class="wheelWrap">
+                <div class="pointer"></div>
+                <div class="wheel" id="wheelEl"></div>
+                <div class="hub">🎁</div>
+            </div>
+            <div id="wheelResult"></div>
+            <button class="tapbtn" id="spinBtn">SPIN</button>
+            <button class="ghostbtn" id="closeWheel" style="margin-top:12px;">CLOSE</button>
+        </div>
+
+        <div id="noLivesOv" class="overlay hidden">
+            <div class="heartBig">💔</div>
+            <div class="title" style="font-size:24px;">OUT OF LIVES</div>
+            <div class="subtitle" style="margin-bottom:0;">Next life in</div>
+            <div id="noLivesTimer">--:--</div>
+            <button class="tapbtn" id="refillBtn" style="margin-top:18px;">REFILL · 40 <svg class="coin-ico">
+                    <use href="#icon-coin" xlink:href="#icon-coin"></use>
+                </svg></button>
+            <button class="ghostbtn" id="closeNoLives" style="margin-top:12px;">WAIT</button>
+        </div>
+
+        <div id="adslot">AD PLACEHOLDER · 320×50 BANNER</div>
+    </div>
+
+    <script>
+        (function () {
+            const canvas = document.getElementById('game');
+            const ctx = canvas.getContext('2d');
+            const scoreEl = document.getElementById('score');
+            const modeLabelEl = document.getElementById('modeLabel');
+            const comboEl = document.getElementById('combo');
+            const coinHud = document.getElementById('coinHud');
+            const bestHud = document.getElementById('bestHud');
+            const startOverlay = document.getElementById('start');
+            const gameoverOverlay = document.getElementById('gameover');
+            const shopOverlay = document.getElementById('shop');
+            const boardOverlay = document.getElementById('board');
+            const wheelOverlay = document.getElementById('wheelOv');
+            const noLivesOverlay = document.getElementById('noLivesOv');
+            const finalScoreEl = document.getElementById('finalScore');
+            const nearMissEl = document.getElementById('nearMiss');
+            const newbestTag = document.getElementById('newbestTag');
+            const coinsEarnedTag = document.getElementById('coinsEarnedTag');
+            const challengeDoneTag = document.getElementById('challengeDoneTag');
+            const restartBtn = document.getElementById('restartBtn');
+            const shareBtn = document.getElementById('shareBtn');
+            const menuBtn = document.getElementById('menuBtn');
+            const toastLayer = document.getElementById('toastLayer');
+            const coinStart = document.getElementById('coinStart');
+            const streakStart = document.getElementById('streakStart');
+            const challengeDesc = document.getElementById('challengeDesc');
+            const challengeBar = document.getElementById('challengeBar');
+            const challengeCard = document.getElementById('challengeCard');
+            const shopList = document.getElementById('shopList');
+            const coinShop = document.getElementById('coinShop');
+            const lbList = document.getElementById('lbList');
+            const livesRow = document.getElementById('livesRow');
+            const openWheelBtn = document.getElementById('openWheelBtn');
+            const spinLabel = document.getElementById('spinLabel');
+            const spinDot = document.getElementById('spinDot');
+            const wheelEl = document.getElementById('wheelEl');
+            const spinBtn = document.getElementById('spinBtn');
+            const wheelResult = document.getElementById('wheelResult');
+            const noLivesTimer = document.getElementById('noLivesTimer');
+            const refillBtn = document.getElementById('refillBtn');
+
+            let audioCtx;
+            function ensureAudio() {
+                try {
+                    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    if (audioCtx.state === 'suspended') audioCtx.resume();
+                } catch (e) { }
+            }
+            function tone(freq, dur, type, vol, delay) {
+                if (!audioCtx) return;
+                type = type || 'sine'; vol = vol == null ? 0.2 : vol; delay = delay || 0;
+                const t0 = audioCtx.currentTime + delay;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type; osc.frequency.setValueAtTime(freq, t0);
+                gain.gain.setValueAtTime(0, t0);
+                gain.gain.linearRampToValueAtTime(vol, t0 + 0.008);
+                gain.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(t0); osc.stop(t0 + dur + 0.02);
+            }
+            const sfx = {
+                tick: () => tone(320, 0.06, 'square', 0.10),
+                perfect: (lvl) => { const b = 520 + Math.min(lvl, 8) * 40; tone(b, 0.12, 'triangle', 0.22); tone(b * 1.5, 0.1, 'triangle', 0.12, 0.03); },
+                miss: () => { tone(180, 0.25, 'sawtooth', 0.18); tone(120, 0.3, 'sawtooth', 0.14, 0.08); },
+                coin: () => { tone(880, 0.08, 'square', 0.14); tone(1200, 0.08, 'square', 0.11, 0.05); },
+                unlock: () => { tone(440, 0.1, 'triangle', 0.2); tone(660, 0.1, 'triangle', 0.2, 0.08); tone(880, 0.15, 'triangle', 0.22, 0.16); },
+                click: () => tone(300, 0.04, 'square', 0.09),
+                powerup: () => { tone(600, 0.1, 'sine', 0.2); tone(900, 0.12, 'sine', 0.18, 0.06); },
+                shatter: () => { tone(220, 0.3, 'sawtooth', 0.16); tone(160, 0.35, 'sawtooth', 0.13, 0.05); tone(110, 0.4, 'sawtooth', 0.11, 0.11); }
+            };
+            function vibrate(pattern) { try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) { } }
+
+            /* ---- PULSE: living melody, one pentatonic note per placed block ---- */
+            const PENTA_ROOT = 261.63; // C4
+            const PENTA_STEPS = [0, 2, 4, 7, 9]; // major pentatonic semitone offsets
+            function pulseNote(stackIndex, perfect) {
+                if (!audioCtx) return;
+                const octave = Math.floor(stackIndex / PENTA_STEPS.length);
+                const stepIdx = stackIndex % PENTA_STEPS.length;
+                const semitone = PENTA_STEPS[stepIdx] + octave * 12;
+                const freq = PENTA_ROOT * Math.pow(2, semitone / 12);
+                const t0 = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = perfect ? 'triangle' : 'sine';
+                osc.frequency.setValueAtTime(freq, t0);
+                const vol = perfect ? 0.16 : 0.10;
+                gain.gain.setValueAtTime(0, t0);
+                gain.gain.linearRampToValueAtTime(vol, t0 + 0.01);
+                gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.5);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(t0); osc.stop(t0 + 0.52);
+                if (perfect) {
+                    // add a soft fifth harmony on perfect drops
+                    const osc2 = audioCtx.createOscillator();
+                    const gain2 = audioCtx.createGain();
+                    osc2.type = 'sine';
+                    osc2.frequency.setValueAtTime(freq * 1.5, t0);
+                    gain2.gain.setValueAtTime(0, t0);
+                    gain2.gain.linearRampToValueAtTime(0.08, t0 + 0.015);
+                    gain2.gain.exponentialRampToValueAtTime(0.001, t0 + 0.4);
+                    osc2.connect(gain2); gain2.connect(audioCtx.destination);
+                    osc2.start(t0); osc2.stop(t0 + 0.42);
+                }
+            }
+
+            const SKEY = 'neonStackProfile_v1';
+            const REGEN_MS = 3 * 60 * 1000;
+            let profile = {
+                coins: 0, bestScore: 0, unlockedSkins: ['neon'], selectedSkin: 'neon',
+                topScores: [], lastLoginDate: null, streak: 0,
+                challenge: { date: null, type: null, target: 0, progress: 0, completed: false },
+                lives: { count: 5, max: 5, lastRegen: Date.now() },
+                lastSpinDate: null
+            };
+            function loadProfile() {
+                try {
+                    const raw = localStorage.getItem(SKEY);
+                    if (raw) {
+                        profile = Object.assign(profile, JSON.parse(raw));
+                        if (!profile.lives) profile.lives = { count: 5, max: 5, lastRegen: Date.now() };
+                    }
+                } catch (e) { console.warn('localStorage unavailable, progress will not be saved this session', e); }
+                handleDailyLogin();
+                handleDailyChallenge();
+                regenLives();
+                refreshMenuUI();
+            }
+            function saveProfile() {
+                try { localStorage.setItem(SKEY, JSON.stringify(profile)); }
+                catch (e) { console.error('save failed', e); }
+            }
+
+            function localDateStr(d) {
+                d = d || new Date();
+                const tz = d.getTimezoneOffset() * 60000;
+                return new Date(d - tz).toISOString().slice(0, 10);
+            }
+
+            function handleDailyLogin() {
+                const today = localDateStr();
+                if (profile.lastLoginDate === today) return;
+                if (profile.lastLoginDate) {
+                    const y = localDateStr(new Date(Date.now() - 86400000));
+                    profile.streak = (profile.lastLoginDate === y) ? (profile.streak || 0) + 1 : 1;
+                } else { profile.streak = 1; }
+                const reward = Math.min(10 + (profile.streak - 1) * 10, 100);
+                profile.coins += reward;
+                profile.lastLoginDate = today;
+                pendingLoginToast = { streak: profile.streak, reward };
+                saveProfile();
+            }
+
+            const CHALLENGE_TYPES = [
+                { type: 'score', target: 30, desc: t => `Reach a score of ${t} in one run` },
+                { type: 'perfects', target: 12, desc: t => `Land ${t} perfect drops in one run` },
+                { type: 'powerups', target: 3, desc: t => `Collect ${t} power-ups in one run` }
+            ];
+            function handleDailyChallenge() {
+                const today = localDateStr();
+                if (profile.challenge && profile.challenge.date === today) return;
+                const hash = today.split('-').reduce((a, c) => a + parseInt(c, 10), 0);
+                const pick = CHALLENGE_TYPES[hash % CHALLENGE_TYPES.length];
+                profile.challenge = { date: today, type: pick.type, target: pick.target, progress: 0, completed: false };
+                saveProfile();
+            }
+            function challengeDescText() {
+                const c = profile.challenge;
+                const def = CHALLENGE_TYPES.find(x => x.type === c.type);
+                return def ? def.desc(c.target) : '';
+            }
+
+            function regenLives() {
+                if (!profile.lives) profile.lives = { count: 5, max: 5, lastRegen: Date.now() };
+                if (profile.lives.count >= profile.lives.max) { profile.lives.lastRegen = Date.now(); return; }
+                const elapsed = Date.now() - profile.lives.lastRegen;
+                const gained = Math.floor(elapsed / REGEN_MS);
+                if (gained > 0) {
+                    profile.lives.count = Math.min(profile.lives.max, profile.lives.count + gained);
+                    profile.lives.lastRegen += gained * REGEN_MS;
+                }
+            }
+            function nextLifeMs() {
+                if (profile.lives.count >= profile.lives.max) return 0;
+                const elapsed = Date.now() - profile.lives.lastRegen;
+                return REGEN_MS - (elapsed % REGEN_MS);
+            }
+            function fmtMMSS(ms) {
+                const s = Math.max(0, Math.ceil(ms / 1000));
+                const m = Math.floor(s / 60), sec = s % 60;
+                return m + ':' + String(sec).padStart(2, '0');
+            }
+            function renderLives() {
+                livesRow.innerHTML = '';
+                for (let i = 0; i < profile.lives.max; i++) {
+                    const h = document.createElement('span');
+                    h.className = 'heart' + (i < profile.lives.count ? '' : ' empty');
+                    h.textContent = '❤';
+                    livesRow.appendChild(h);
+                }
+                if (profile.lives.count < profile.lives.max) {
+                    const t = document.createElement('span');
+                    t.className = 'livesTimer';
+                    t.textContent = fmtMMSS(nextLifeMs());
+                    livesRow.appendChild(t);
+                }
+            }
+            setInterval(() => {
+                regenLives();
+                if (!startOverlay.classList.contains('hidden')) { renderLives(); bestHud.textContent = profile.bestScore || 0; }
+                if (!noLivesOverlay.classList.contains('hidden')) {
+                    const ms = nextLifeMs();
+                    noLivesTimer.textContent = fmtMMSS(ms);
+                    if (profile.lives.count > 0) { noLivesOverlay.classList.add('hidden'); }
+                }
+            }, 1000);
+
+            let pendingLoginToast = null;
+            function showToast(text) {
+                const t = document.createElement('div');
+                t.className = 'toast'; t.textContent = text;
+                toastLayer.appendChild(t);
+                setTimeout(() => t.remove(), 3100);
+            }
+
+            const WHEEL_SEGMENTS = [
+                { label: '15 coins', type: 'coins', value: 15, weight: 30, color: '#8B5CF6' },
+                { label: '25 coins', type: 'coins', value: 25, weight: 25, color: '#22D3EE' },
+                { label: '40 coins', type: 'coins', value: 40, weight: 20, color: '#F472B6' },
+                { label: '60 coins', type: 'coins', value: 60, weight: 12, color: '#FBBF24' },
+                { label: '100 coins', type: 'coins', value: 100, weight: 8, color: '#34D399' },
+                { label: 'FULL LIVES', type: 'lives', value: 5, weight: 5, color: '#FFD24D' }
+            ];
+            function buildWheelVisual() {
+                const n = WHEEL_SEGMENTS.length, seg = 360 / n;
+                let grad = 'conic-gradient(from 0deg,';
+                WHEEL_SEGMENTS.forEach((s, i) => { grad += ` ${s.color} ${i * seg}deg ${(i + 1) * seg}deg${i < n - 1 ? ',' : ''}`; });
+                grad += ')';
+                wheelEl.style.background = grad;
+                wheelEl.querySelectorAll('.wheelLabel').forEach(e => e.remove());
+                const R = 32; // radius as % of wheel size, from center
+                WHEEL_SEGMENTS.forEach((s, i) => {
+                    const mid = i * seg + seg / 2; // degrees, 0 = top, clockwise (matches conic-gradient)
+                    const rad = mid * Math.PI / 180;
+                    const x = 50 + R * Math.sin(rad);
+                    const y = 50 - R * Math.cos(rad);
+                    let rot = mid;
+                    if (mid > 90 && mid < 270) rot += 180; // keep text upright/readable on bottom half
+                    const lab = document.createElement('div');
+                    lab.className = 'wheelLabel';
+                    lab.textContent = s.label;
+                    lab.style.left = x + '%';
+                    lab.style.top = y + '%';
+                    lab.style.transform = `translate(-50%,-50%) rotate(${rot}deg)`;
+                    wheelEl.appendChild(lab);
+                });
+            }
+            function pickWeighted(list) {
+                const total = list.reduce((a, b) => a + b.weight, 0);
+                let r = Math.random() * total;
+                for (const item of list) { if (r < item.weight) return item; r -= item.weight; }
+                return list[list.length - 1];
+            }
+            let spinning = false;
+            function renderWheelState() {
+                const today = localDateStr();
+                const available = profile.lastSpinDate !== today;
+                spinBtn.disabled = !available || spinning;
+                spinBtn.textContent = available ? 'SPIN' : 'COME BACK TOMORROW';
+                wheelResult.textContent = '';
+                wheelEl.style.transition = 'none';
+                wheelEl.style.transform = 'rotate(0deg)';
+            }
+            openWheelBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); ensureAudio(); sfx.click();
+                buildWheelVisual(); renderWheelState();
+                wheelOverlay.classList.remove('hidden');
+            });
+            document.getElementById('closeWheel').addEventListener('click', (e) => {
+                e.stopPropagation(); sfx.click();
+                wheelOverlay.classList.add('hidden'); refreshMenuUI();
+            });
+            spinBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const today = localDateStr();
+                if (profile.lastSpinDate === today || spinning) return;
+                spinning = true; ensureAudio(); sfx.click();
+                const picked = pickWeighted(WHEEL_SEGMENTS);
+                const idx = WHEEL_SEGMENTS.indexOf(picked);
+                const seg = 360 / WHEEL_SEGMENTS.length;
+                const center = idx * seg + seg / 2;
+                const rot = 360 * 5 + (360 - center);
+                requestAnimationFrame(() => {
+                    wheelEl.style.transition = 'transform 3.2s cubic-bezier(.13,.77,.14,1)';
+                    wheelEl.style.transform = `rotate(${rot}deg)`;
+                });
+                setTimeout(() => {
+                    if (picked.type === 'coins') profile.coins += picked.value;
+                    else if (picked.type === 'lives') profile.lives.count = profile.lives.max;
+                    profile.lastSpinDate = today;
+                    saveProfile(); spinning = false;
+                    spinBtn.disabled = true; spinBtn.textContent = 'COME BACK TOMORROW';
+                    wheelResult.textContent = 'You won ' + picked.label + '!';
+                    sfx.unlock(); vibrate([15, 30, 15]);
+                    refreshMenuUI();
+                }, 3300);
+            });
+
+            const SKINS = [
+                { id: 'neon', name: 'Neon', cost: 0, hues: [265, 190, 330, 45, 210], effect: 'neon', img: 'IMG_8725.PNG' },
+                { id: 'sunset', name: 'Sunset', cost: 250, hues: [15, 35, 350, 45, 25], effect: 'sunset', img: 'IMG_8723.PNG' },
+                { id: 'toxic', name: 'Toxic', cost: 400, hues: [95, 140, 165, 80, 120], effect: 'toxic', img: 'IMG_8720.PNG' },
+                { id: 'royal', name: 'Royal', cost: 650, hues: [260, 45, 230, 280, 250], effect: 'royal', img: 'IMG_8722.PNG' },
+                { id: 'ice', name: 'Ice', cost: 900, hues: [190, 200, 180, 210, 170], effect: 'ice', img: 'IMG_8721.PNG' }
+            ];
+            function currentSkin() { return SKINS.find(s => s.id === profile.selectedSkin) || SKINS[0]; }
+            function currentHues() { return currentSkin().hues; }
+            function currentSkinEffect() { return currentSkin().effect; }
+
+            let DPR = Math.min(window.devicePixelRatio || 1, 2.5);
+            let W, H;
+            function resize() {
+                W = window.innerWidth; H = window.innerHeight;
+                canvas.width = W * DPR; canvas.height = H * DPR;
+                canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+                ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            const BLOCK_H = 42;
+            let blocks = [], current = null, cameraY = 0, targetCameraY = 0;
+            let score = 0, combo = 0, speed = 2.6, dir = 1, running = false;
+            let debris = [], particles = [], shatterPieces = [];
+            let shake = 0, perfectFlash = 0, hueBase = 265;
+            let started = false;
+            let gameMode = 'endless';
+            let timeLeft = 60;
+            let activeSticky = 0, activeGuide = 0;
+            let runPerfects = 0, runPowerups = 0, runCoinsEarned = 0;
+
+            function triggerShatter() {
+                const n = blocks.length;
+                blocks.forEach((b, i) => {
+                    shatterPieces.push({
+                        x: b.x, y: b.y, w: b.w, hue: b.hue,
+                        vx: (Math.random() - 0.5) * 7,
+                        vy: -3 - Math.random() * 3.5,
+                        rot: 0, vr: (Math.random() - 0.5) * 0.35,
+                        life: 1, delay: (n - 1 - i) * 0.02 + Math.random() * 0.04
+                    });
+                });
+                blocks = [];
+                shake = Math.max(shake, 10);
+            }
+
+            function baseTolerance() {
+                if (activeSticky > 0) return 16;
+                if (gameMode === 'precision') return 3;
+                return 6;
+            }
+
+            function resetGame() {
+                const baseWidth = gameMode === 'precision' ? Math.min(W * 0.5, 280) : Math.min(W * 0.62, 340);
+                const hues = currentHues();
+                blocks = [{ x: W / 2 - baseWidth / 2, y: H - 160, w: baseWidth, hue: hues[0] }];
+                score = 0; combo = 0; speed = 2.6; cameraY = 0; targetCameraY = 0;
+                debris = []; particles = []; shatterPieces = []; shake = 0; perfectFlash = 0; hueBase = hues[0];
+                activeSticky = 0; activeGuide = 0;
+                runPerfects = 0; runPowerups = 0; runCoinsEarned = 0;
+                timeLeft = 60;
+                scoreEl.textContent = '0';
+                comboEl.classList.remove('show');
+                modeLabelEl.textContent = gameMode === 'timeattack' ? '1:00' : gameMode.toUpperCase();
+                updateCoinHud();
+                spawnNext();
+            }
+
+            function spawnNext() {
+                const last = blocks[blocks.length - 1];
+                const hues = currentHues();
+                const hue = hues[blocks.length % hues.length];
+                const fromLeft = (blocks.length % 2 === 0);
+                let powerup = null;
+                if (score > 3 && !activeSticky && !activeGuide && Math.random() < 0.16) {
+                    powerup = Math.random() < 0.5 ? 'STICKY' : 'GUIDE';
+                }
+                let gustMul = 1;
+                if (score > 15 && Math.random() < 0.15) gustMul = 1.5;
+                current = { x: fromLeft ? -last.w : W, y: last.y - BLOCK_H, w: last.w, hue, powerup, gustMul, spawnT: 0 };
+                dir = fromLeft ? 1 : -1;
+            }
+
+            function dropBlock() {
+                if (!running) return;
+                const last = blocks[blocks.length - 1];
+                const left = Math.max(current.x, last.x);
+                const right = Math.min(current.x + current.w, last.x + last.w);
+                const overlap = right - left;
+
+                if (overlap <= 4) {
+                    debris.push({ x: current.x, y: current.y, w: current.w, h: BLOCK_H, hue: current.hue, vy: 2, vx: dir * 3, rot: 0, vr: dir * 0.12, life: 1 });
+                    sfx.miss(); vibrate(40);
+                    endGame();
+                    return;
+                }
+
+                const diff = Math.abs(current.x - last.x);
+                const tol = baseTolerance();
+                const perfect = diff < tol;
+                let newW = overlap, newX = left;
+
+                if (perfect) {
+                    newW = last.w; newX = last.x;
+                    combo++; runPerfects++;
+                    triggerPerfect(newX + newW / 2, current.y);
+                    sfx.perfect(combo); vibrate(15);
+                    pulseNote(blocks.length, true);
+                } else {
+                    combo = 0; comboEl.classList.remove('show');
+                    if (current.x < last.x) {
+                        const lw = last.x - current.x;
+                        debris.push({ x: current.x, y: current.y, w: lw, h: BLOCK_H, hue: current.hue, vy: 1.5, vx: -2.5, rot: 0, vr: -0.15, life: 1 });
+                    }
+                    if (current.x + current.w > last.x + last.w) {
+                        const lw = (current.x + current.w) - (last.x + last.w);
+                        debris.push({ x: last.x + last.w, y: current.y, w: lw, h: BLOCK_H, hue: current.hue, vy: 1.5, vx: 2.5, rot: 0, vr: 0.15, life: 1 });
+                    }
+                    shake = Math.max(shake, 3);
+                    sfx.tick();
+                    pulseNote(blocks.length, false);
+                }
+
+                if (current.powerup) {
+                    if (current.powerup === 'STICKY') activeSticky = 4; else activeGuide = 6;
+                    runPowerups++; runCoinsEarned += 5;
+                    sfx.powerup(); vibrate(10);
+                    spawnPowerupBurst(newX + newW / 2, current.y);
+                } else {
+                    if (activeSticky > 0) activeSticky--;
+                    if (activeGuide > 0) activeGuide--;
+                }
+
+                blocks.push({ x: newX, y: current.y, w: newW, hue: current.hue });
+                score++; scoreEl.textContent = score;
+                hueBase = current.hue;
+                updateCoinHud();
+
+                const stackTopScreen = current.y - cameraY;
+                if (stackTopScreen < H * 0.42) targetCameraY = current.y - H * 0.42;
+
+                speed = Math.min(9, 2.6 + score * 0.14);
+                spawnNext();
+            }
+
+            function triggerPerfect(px, py) {
+                comboEl.textContent = combo >= 2 ? ('COMBO x' + combo) : 'PERFECT';
+                comboEl.classList.add('show');
+                perfectFlash = 1; shake = Math.max(shake, 5);
+                for (let i = 0; i < 18; i++) {
+                    const ang = Math.random() * Math.PI * 2, spd = 2 + Math.random() * 3.5;
+                    particles.push({ x: px, y: py + BLOCK_H / 2, vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd, life: 1, hue: current.hue });
+                }
+            }
+            function spawnPowerupBurst(px, py) {
+                for (let i = 0; i < 14; i++) {
+                    const ang = Math.random() * Math.PI * 2, spd = 1.5 + Math.random() * 3;
+                    particles.push({ x: px, y: py, vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd, life: 1, hue: 48 });
+                }
+            }
+            function updateCoinHud() { coinHud.textContent = profile.coins + runCoinsEarned; }
+            function computeRunCoins() {
+                let base = Math.floor(score / 2) + runPerfects * 2;
+                if (gameMode === 'precision') base *= 2;
+                return base + runCoinsEarned;
+            }
+            function evaluateChallenge() {
+                const c = profile.challenge;
+                if (!c || c.completed) return 0;
+                let stat = 0;
+                if (c.type === 'score') stat = score;
+                else if (c.type === 'perfects') stat = runPerfects;
+                else if (c.type === 'powerups') stat = runPowerups;
+                c.progress = Math.max(c.progress, stat);
+                if (c.progress >= c.target) { c.completed = true; return 100; }
+                return 0;
+            }
+            function updateTopScores() {
+                profile.topScores = profile.topScores || [];
+                profile.topScores.push({ score, mode: gameMode, date: localDateStr() });
+                profile.topScores.sort((a, b) => b.score - a.score);
+                profile.topScores = profile.topScores.slice(0, 5);
+            }
+
+            function endGame() {
+                running = false;
+                triggerShatter();
+                sfx.shatter(); vibrate([25, 40, 25]);
+                const prevBest = profile.bestScore || 0;
+                const totalRunCoins = computeRunCoins();
+                const challengeReward = evaluateChallenge();
+                profile.coins += totalRunCoins + challengeReward;
+
+                let isBest = false;
+                if (score > profile.bestScore) { profile.bestScore = score; isBest = true; }
+                updateTopScores();
+                saveProfile();
+
+                finalScoreEl.textContent = score;
+                newbestTag.classList.toggle('hidden', !isBest);
+                coinsEarnedTag.innerHTML = '+' + (totalRunCoins + challengeReward) + ' <svg class="coin-ico"><use href="#icon-coin" xlink:href="#icon-coin"></use></svg>';
+                challengeDoneTag.classList.toggle('hidden', challengeReward <= 0);
+
+                const diff = prevBest - score;
+                if (!isBest && prevBest > 0 && diff > 0 && diff <= 5) {
+                    nearMissEl.textContent = `Only ${diff} point${diff > 1 ? 's' : ''} from your best! 🔥`;
+                    restartBtn.classList.add('pulse');
+                } else {
+                    nearMissEl.textContent = '';
+                    restartBtn.classList.remove('pulse');
+                }
+
+                setTimeout(() => { gameoverOverlay.classList.remove('hidden'); }, 900);
+            }
+
+            function update(dt) {
+                const F = Math.min(3, dt * 60);
+                if (running && current) {
+                    current.spawnT = Math.min(1, current.spawnT + 0.09 * F);
+                    current.x += dir * speed * current.gustMul * F;
+                    const min = -current.w * 0.15, max = W - current.w * 0.85;
+                    if (current.x < min) { current.x = min; dir = 1; }
+                    if (current.x > max) { current.x = max; dir = -1; }
+                    if (gameMode === 'timeattack') {
+                        timeLeft -= dt;
+                        const s = Math.max(0, Math.ceil(timeLeft));
+                        modeLabelEl.textContent = '0:' + String(s).padStart(2, '0');
+                        if (timeLeft <= 0) { sfx.miss(); vibrate(40); endGame(); }
+                    }
+                }
+                cameraY += (targetCameraY - cameraY) * Math.min(1, 0.12 * F);
+                for (let i = debris.length - 1; i >= 0; i--) {
+                    const d = debris[i];
+                    d.vy += 0.35 * F; d.x += d.vx * F; d.y += d.vy * F; d.rot += d.vr * F; d.life -= 0.015 * F;
+                    if (d.life <= 0) debris.splice(i, 1);
+                }
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const p = particles[i];
+                    p.x += p.vx * F; p.y += p.vy * F; p.vy += 0.12 * F; p.life -= 0.03 * F;
+                    if (p.life <= 0) particles.splice(i, 1);
+                }
+                for (let i = shatterPieces.length - 1; i >= 0; i--) {
+                    const s = shatterPieces[i];
+                    if (s.delay > 0) { s.delay -= dt; continue; }
+                    s.vy += 0.42 * F; s.x += s.vx * F; s.y += s.vy * F; s.rot += s.vr * F; s.life -= 0.011 * F;
+                    if (s.life <= 0) shatterPieces.splice(i, 1);
+                }
+                if (shake > 0) shake *= Math.pow(0.85, F);
+                if (perfectFlash > 0) perfectFlash -= 0.05 * F;
+            }
+
+            function drawBackground() {
+                const t = Math.min(1, score / 60);
+                const h1 = (hueBase + 20) % 360, h2 = (hueBase + 200) % 360;
+                const g = ctx.createLinearGradient(0, 0, 0, H);
+                g.addColorStop(0, `hsl(${h1}, 45%, ${8 + t * 4}%)`);
+                g.addColorStop(1, `hsl(${h2}, 55%, 4%)`);
+                ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+                if (perfectFlash > 0) { ctx.fillStyle = `rgba(255,255,255,${perfectFlash * 0.08})`; ctx.fillRect(0, 0, W, H); }
+            }
+            function roundRect(x, y, w, h, r) {
+                ctx.beginPath(); ctx.moveTo(x + r, y);
+                ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+                ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+            }
+            function drawBlock(b, scale) {
+                const y = b.y - cameraY;
+                if (y > H + 60 || y < -100) return;
+                scale = scale == null ? 1 : scale;
+                const h = BLOCK_H * scale; const yy = y + (BLOCK_H - h);
+                const effect = currentSkinEffect();
+
+                let sat = 85, light1 = 62, light2 = 52, glowIntensity = 18;
+                if (effect === 'ice') { sat = 38; light1 = 84; light2 = 70; glowIntensity = 14; }
+                else if (effect === 'toxic') { sat = 95; light1 = 55; light2 = 36; glowIntensity = 22 + Math.sin(Date.now() / 220) * 8; }
+                else if (effect === 'royal') { sat = 72; light1 = 56; light2 = 40; glowIntensity = 24; }
+                else if (effect === 'sunset') { sat = 88; light1 = 64; light2 = 48; }
+
+                const grad = ctx.createLinearGradient(b.x, yy, b.x + b.w, yy + h);
+                grad.addColorStop(0, `hsl(${b.hue}, ${sat}%, ${light1}%)`);
+                grad.addColorStop(1, `hsl(${(b.hue + 40) % 360}, ${sat}%, ${light2}%)`);
+                ctx.save(); ctx.globalAlpha = scale;
+                ctx.shadowColor = `hsla(${b.hue}, 90%, 60%, 0.55)`; ctx.shadowBlur = glowIntensity;
+                ctx.fillStyle = grad; roundRect(b.x, yy, b.w, h, 6); ctx.fill(); ctx.restore();
+                ctx.strokeStyle = `hsla(${b.hue}, 100%, 85%, 0.4)`; ctx.lineWidth = 1;
+                roundRect(b.x, yy, b.w, h, 6); ctx.stroke();
+
+                if (effect === 'ice') {
+                    ctx.save();
+                    ctx.globalAlpha = 0.32 * scale;
+                    ctx.beginPath(); roundRect(b.x, yy, b.w, h, 6); ctx.clip();
+                    ctx.fillStyle = '#fff';
+                    ctx.beginPath();
+                    ctx.moveTo(b.x, yy + h * 0.15);
+                    ctx.lineTo(b.x + b.w * 0.32, yy);
+                    ctx.lineTo(b.x + b.w * 0.5, yy);
+                    ctx.lineTo(b.x + b.w * 0.18, yy + h);
+                    ctx.lineTo(b.x, yy + h);
+                    ctx.closePath(); ctx.fill();
+                    ctx.restore();
+                } else if (effect === 'sunset') {
+                    ctx.save();
+                    const gx = b.x + b.w * 0.8, gy = yy + h * 0.35;
+                    const rg = ctx.createRadialGradient(gx, gy, 0, gx, gy, h * 1.2);
+                    rg.addColorStop(0, 'rgba(255,235,180,0.5)');
+                    rg.addColorStop(1, 'rgba(255,235,180,0)');
+                    ctx.beginPath(); roundRect(b.x, yy, b.w, h, 6); ctx.clip();
+                    ctx.fillStyle = rg; ctx.fillRect(b.x, yy, b.w, h);
+                    ctx.restore();
+                } else if (effect === 'toxic') {
+                    ctx.save();
+                    ctx.globalAlpha = 0.45 + Math.sin(Date.now() / 300) * 0.2;
+                    ctx.fillStyle = `hsla(${b.hue},100%,72%,0.6)`;
+                    ctx.beginPath(); ctx.arc(b.x + b.w * 0.25, yy + h * 0.6, 3, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(b.x + b.w * 0.7, yy + h * 0.35, 2.2, 0, Math.PI * 2); ctx.fill();
+                    ctx.restore();
+                } else if (effect === 'royal') {
+                    ctx.save();
+                    ctx.fillStyle = '#FFD24D';
+                    const s = 4;
+                    [[b.x + 7, yy + h / 2], [b.x + b.w - 7, yy + h / 2]].forEach(([cx, cy]) => {
+                        ctx.beginPath();
+                        ctx.moveTo(cx, cy - s); ctx.lineTo(cx + s, cy); ctx.lineTo(cx, cy + s); ctx.lineTo(cx - s, cy);
+                        ctx.closePath(); ctx.fill();
+                    });
+                    ctx.restore();
+                }
+            }
+            function drawPowerupOrb(b) {
+                if (!b.powerup) return;
+                const y = b.y - cameraY - 16; const cx = b.x + b.w / 2;
+                ctx.save(); ctx.shadowColor = 'rgba(255,210,77,0.8)'; ctx.shadowBlur = 16;
+                ctx.fillStyle = '#FFD24D'; ctx.beginPath(); ctx.arc(cx, y, 8, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#0B0E1A'; ctx.font = 'bold 10px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(b.powerup === 'STICKY' ? 'S' : 'G', cx, y + 1); ctx.restore();
+            }
+            function drawGuide() {
+                if (activeGuide <= 0 || !blocks.length) return;
+                const last = blocks[blocks.length - 1]; const cx = last.x + last.w / 2;
+                const y0 = (last.y - cameraY);
+                ctx.save(); ctx.strokeStyle = 'rgba(34,211,238,0.55)'; ctx.setLineDash([4, 6]); ctx.lineWidth = 1.5;
+                ctx.beginPath(); ctx.moveTo(cx, y0); ctx.lineTo(cx, y0 - 260); ctx.stroke(); ctx.restore();
+            }
+            function drawGust(b) {
+                if (b.gustMul <= 1) return;
+                const y = b.y - cameraY + BLOCK_H / 2;
+                ctx.save(); ctx.strokeStyle = 'rgba(139,92,246,0.35)'; ctx.lineWidth = 2;
+                for (let i = 0; i < 3; i++) {
+                    const off = i * 10 - 10;
+                    ctx.beginPath(); ctx.moveTo(b.x - 26, y + off); ctx.lineTo(b.x - 8, y + off); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(b.x + b.w + 8, y + off); ctx.lineTo(b.x + b.w + 26, y + off); ctx.stroke();
+                }
+                ctx.restore();
+            }
+            function draw() {
+                ctx.save();
+                if (shake > 0.1) ctx.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake);
+                drawBackground(); drawGuide();
+                for (const b of blocks) drawBlock(b);
+                if (current && running) { drawBlock(current, current.spawnT); drawPowerupOrb(current); drawGust(current); }
+                for (const d of debris) {
+                    const y = d.y - cameraY;
+                    ctx.save(); ctx.globalAlpha = Math.max(0, d.life);
+                    ctx.translate(d.x + d.w / 2, y + BLOCK_H / 2); ctx.rotate(d.rot);
+                    ctx.fillStyle = `hsl(${d.hue}, 85%, 58%)`;
+                    roundRect(-d.w / 2, -BLOCK_H / 2, d.w, BLOCK_H, 5); ctx.fill(); ctx.restore();
+                }
+                for (const p of particles) {
+                    const y = p.y - cameraY;
+                    ctx.save(); ctx.globalAlpha = Math.max(0, p.life);
+                    ctx.fillStyle = `hsl(${p.hue}, 95%, 70%)`;
+                    ctx.beginPath(); ctx.arc(p.x, y, 3.5, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+                }
+                for (const s of shatterPieces) {
+                    const y = s.y - cameraY;
+                    ctx.save(); ctx.globalAlpha = Math.max(0, s.life);
+                    ctx.translate(s.x + s.w / 2, y + BLOCK_H / 2); ctx.rotate(s.rot);
+                    ctx.shadowColor = `hsla(${s.hue}, 90%, 60%, 0.5)`; ctx.shadowBlur = 12;
+                    ctx.fillStyle = `hsl(${s.hue}, 85%, 58%)`;
+                    roundRect(-s.w / 2, -BLOCK_H / 2, s.w, BLOCK_H, 5); ctx.fill(); ctx.restore();
+                }
+                ctx.restore();
+            }
+            let lastTs = 0;
+            function loop(ts) {
+                if (!lastTs) lastTs = ts;
+                const dt = Math.min(0.05, (ts - lastTs) / 1000);
+                lastTs = ts;
+                update(dt); draw();
+                requestAnimationFrame(loop);
+            }
+
+            function handleTap(e) {
+                if (e) e.preventDefault();
+                if (!started || !running) return;
+                dropBlock();
+            }
+            window.addEventListener('pointerdown', (e) => {
+                const allHidden = startOverlay.classList.contains('hidden') && gameoverOverlay.classList.contains('hidden') &&
+                    shopOverlay.classList.contains('hidden') && boardOverlay.classList.contains('hidden') &&
+                    wheelOverlay.classList.contains('hidden') && noLivesOverlay.classList.contains('hidden');
+                if (allHidden) handleTap(e);
+            }, { passive: false });
+            window.addEventListener('keydown', (e) => { if (e.code === 'Space') handleTap(e); });
+
+            function tryStartMode(mode) {
+                regenLives();
+                if (profile.lives.count <= 0) {
+                    noLivesTimer.textContent = fmtMMSS(nextLifeMs());
+                    refillBtn.disabled = profile.coins < 40;
+                    noLivesOverlay.classList.remove('hidden');
+                    return;
+                }
+                profile.lives.count--; saveProfile();
+                gameMode = mode; started = true; running = true;
+                startOverlay.classList.add('hidden');
+                resetGame();
+            }
+            document.querySelectorAll('.modeBtn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation(); ensureAudio(); sfx.click();
+                    tryStartMode(btn.dataset.mode);
+                });
+            });
+            restartBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); ensureAudio(); sfx.click();
+                regenLives();
+                if (profile.lives.count <= 0) {
+                    gameoverOverlay.classList.add('hidden');
+                    noLivesTimer.textContent = fmtMMSS(nextLifeMs());
+                    refillBtn.disabled = profile.coins < 40;
+                    noLivesOverlay.classList.remove('hidden');
+                    return;
+                }
+                profile.lives.count--; saveProfile();
+                gameoverOverlay.classList.add('hidden');
+                running = true; resetGame();
+            });
+            menuBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); sfx.click();
+                gameoverOverlay.classList.add('hidden');
+                refreshMenuUI(); startOverlay.classList.remove('hidden'); started = false;
+            });
+            shareBtn.addEventListener('click', async (e) => {
+                e.stopPropagation(); sfx.click();
+                const text = `I scored ${score} in NEON STACK! Can you beat it?`;
+                try {
+                    if (navigator.share) { await navigator.share({ text }); }
+                    else if (navigator.clipboard) { await navigator.clipboard.writeText(text); showToast('Score copied to clipboard'); }
+                } catch (err) { }
+            });
+
+            document.getElementById('closeNoLives').addEventListener('click', (e) => {
+                e.stopPropagation(); sfx.click();
+                noLivesOverlay.classList.add('hidden');
+                if (startOverlay.classList.contains('hidden')) {
+                    refreshMenuUI(); startOverlay.classList.remove('hidden'); started = false;
+                }
+            });
+            refillBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (profile.coins < 40) { sfx.miss(); showToast('Not enough coins'); return; }
+                profile.coins -= 40;
+                profile.lives.count = profile.lives.max;
+                profile.lives.lastRegen = Date.now();
+                sfx.unlock(); vibrate([15, 20, 15]);
+                saveProfile();
+                noLivesOverlay.classList.add('hidden');
+                refreshMenuUI();
+                if (startOverlay.classList.contains('hidden')) {
+                    startOverlay.classList.remove('hidden'); started = false;
+                }
+            });
+
+            document.getElementById('openShop').addEventListener('click', (e) => {
+                e.stopPropagation(); sfx.click(); renderShop(); shopOverlay.classList.remove('hidden');
+            });
+            document.getElementById('closeShop').addEventListener('click', (e) => {
+                e.stopPropagation(); sfx.click(); shopOverlay.classList.add('hidden'); refreshMenuUI();
+            });
+            function renderShop() {
+                coinShop.textContent = profile.coins;
+                shopList.innerHTML = '';
+                SKINS.forEach(s => {
+                    const owned = profile.unlockedSkins.includes(s.id);
+                    const active = profile.selectedSkin === s.id;
+                    const row = document.createElement('div');
+                    row.className = 'skinRow' + (active ? ' selected' : '');
+                    const swatchGrad = `linear-gradient(135deg, hsl(${s.hues[0]},85%,60%), hsl(${s.hues[2]},85%,55%))`;
+                    row.innerHTML = `
+        <div class="swatch" style="background:${swatchGrad}"><img src="${s.img}" alt="" onerror="this.style.display='none'"></div>
+        <div class="skinInfo"><div class="n">${s.name}</div><div class="c">${owned ? (active ? 'Selected' : 'Owned') : s.cost + ' coins'}</div></div>
+        <button class="skinBtn ${active ? 'active' : (owned ? 'owned' : 'buy')}">${active ? 'Active' : (owned ? 'Select' : 'Buy')}</button>
+      `;
+                    row.querySelector('button').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (!owned) {
+                            if (profile.coins >= s.cost) {
+                                profile.coins -= s.cost; profile.unlockedSkins.push(s.id); profile.selectedSkin = s.id;
+                                sfx.unlock(); vibrate([15, 20, 15]); saveProfile(); renderShop(); refreshMenuUI();
+                            } else { sfx.miss(); showToast('Not enough coins'); }
+                        } else if (!active) {
+                            profile.selectedSkin = s.id; sfx.click(); saveProfile(); renderShop();
+                        }
+                    });
+                    shopList.appendChild(row);
+                });
+            }
+
+            document.getElementById('openBoard').addEventListener('click', (e) => {
+                e.stopPropagation(); sfx.click(); renderBoard(); boardOverlay.classList.remove('hidden');
+            });
+            document.getElementById('closeBoard').addEventListener('click', (e) => {
+                e.stopPropagation(); sfx.click(); boardOverlay.classList.add('hidden');
+            });
+            function renderBoard() {
+                lbList.innerHTML = '';
+                const scores = profile.topScores || [];
+                if (!scores.length) { lbList.innerHTML = '<div class="lbEmpty">No runs yet — play a game!</div>'; return; }
+                scores.forEach((s, i) => {
+                    const row = document.createElement('div');
+                    row.className = 'lbRow';
+                    row.innerHTML = `<span class="rank">#${i + 1}</span><span class="sc">${s.score}</span><span class="md">${s.mode}</span>`;
+                    lbList.appendChild(row);
+                });
+            }
+
+            function refreshMenuUI() {
+                coinStart.textContent = profile.coins;
+                streakStart.textContent = profile.streak || 0;
+                coinHud.textContent = profile.coins;
+                bestHud.textContent = profile.bestScore || 0;
+                renderLives();
+                const today = localDateStr();
+                const spinAvailable = profile.lastSpinDate !== today;
+                spinDot.classList.toggle('hidden', !spinAvailable);
+                spinLabel.textContent = spinAvailable ? '🎡 FREE DAILY SPIN' : '🎡 SPIN USED TODAY';
+                const c = profile.challenge;
+                if (c && c.type) {
+                    challengeDesc.textContent = challengeDescText();
+                    const pct = Math.min(100, Math.round((c.progress / c.target) * 100));
+                    challengeBar.style.width = pct + '%';
+                    challengeCard.classList.toggle('done', !!c.completed);
+                    document.getElementById('challengeReward').textContent = c.completed ? 'DONE' : '+100';
+                }
+                if (pendingLoginToast) {
+                    showToast(`Day ${pendingLoginToast.streak} streak · +${pendingLoginToast.reward} coins`);
+                    pendingLoginToast = null;
+                }
+            }
+
+            loadProfile();
+            loop();
+        })();
+    </script>
+</body>
+
+</html>
