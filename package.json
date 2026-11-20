@@ -1,0 +1,14 @@
+{
+  "name": "cube-rush-3d",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "serve": "python -m http.server 8000",
+    "test": "node --test"
+  },
+  "keywords": ["three.js", "endless-runner", "browser-game"],
+  "author": "",
+  "license": "UNLICENSED"
+}
